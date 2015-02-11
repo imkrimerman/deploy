@@ -1,0 +1,5 @@
+suites:
+    main:
+        namespace: Deploy
+        psr4_prefix: Deploy
+        src_path: app
