@@ -25,10 +25,8 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-		$this->app->bind(
-			'Illuminate\Contracts\Auth\Registrar',
-			'Deploy\Services\Registrar'
-		);
+		$this->app->bind('Illuminate\Contracts\Auth\Registrar', 'Deploy\Services\Registrar');
+		$this->app->bind('project.factory', 'Deploy\Project\ProjectFactory');
 	}
 
 }
