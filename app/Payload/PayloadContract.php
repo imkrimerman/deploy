@@ -10,17 +10,17 @@ interface PayloadContract {
     public function __construct(Container $payload);
 
     /**
-     * @return mixed
+     * @return \im\Primitive\String\String
      */
     public function getName();
 
     /**
-     * @return mixed
+     * @return \im\Primitive\String\String
      */
     public function getSlug();
 
     /**
-     * @return mixed
+     * @return \im\Primitive\Container\Container
      */
     public function getCommits();
 }

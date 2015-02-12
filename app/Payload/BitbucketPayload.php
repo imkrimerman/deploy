@@ -5,30 +5,30 @@ class BitbucketPayload extends Payload {
     /**
      * Get project name.
      *
-     * @return mixed
+     * @return \im\Primitive\String\String
      */
     public function getName()
     {
-        return $this->payload->get('repository.name');
+        return string($this->payload->get('repository.name'));
     }
 
     /**
      * Get project name.
      *
-     * @return mixed
+     * @return \im\Primitive\String\String
      */
     public function getSlug()
     {
-        return $this->payload->get('repository.slug');
+        return string($this->payload->get('repository.slug'));
     }
 
     /**
      * Get payload commits.
      *
-     * @return mixed
+     * @return \im\Primitive\Container\Container
      */
     public function getCommits()
     {
-        return $this->payload->get('commits');
+        return container($this->payload->get('commits'));
     }
 }

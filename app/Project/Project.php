@@ -2,6 +2,8 @@
 
 use Deploy\Contracts\RepositoryContract;
 use Deploy\Payload\PayloadContract;
+use im\Primitive\String\String;
+
 
 abstract class Project implements ProjectContract {
 
@@ -27,6 +29,27 @@ abstract class Project implements ProjectContract {
     protected $config;
 
     /**
+     * Project exist flag.
+     *
+     * @var bool
+     */
+    public $exists;
+
+    /**
+     * Project branches.
+     *
+     * @var \im\Primitive\Container\Container
+     */
+    protected $branches;
+
+    /**
+     * Project pending state.
+     *
+     * @var string
+     */
+    protected $state;
+    
+    /**
      * Construct.
      *
      * @param \Deploy\Project\ProjectRepository $repository
@@ -46,6 +69,8 @@ abstract class Project implements ProjectContract {
     {
         $this->payload = $payload;
         $this->config = $this->configure();
+        $this->branches = $this->detectBranches();
+        $this->exists = $this->config->get('exists');
 
         return $this;
     }
@@ -58,6 +83,37 @@ abstract class Project implements ProjectContract {
     public function getConfig()
     {
         return $this->config;
+    }
+
+    /**
+     * Return Project branch.
+     *
+     * @return string
+     */
+    public function getBranches()
+    {
+        return $this->branches;
+    }
+
+    /**
+     * Return Project pending state.
+     *
+     * @return string
+     */
+    public function getState()
+    {
+        return $this->state;
+    }
+
+    /**
+     * Set Project pending state.
+     *
+     * @param string $state
+     * @return $this
+     */
+    public function setState($state)
+    {
+        $this->state = string($state);
     }
 
     /**
@@ -95,4 +151,11 @@ abstract class Project implements ProjectContract {
             'exists' => false
         ];
     }
+
+    /**
+     * Detect Project branches.
+     *
+     * @return \im\Primitive\Container\Container
+     */
+    abstract protected function detectBranches();
 }
