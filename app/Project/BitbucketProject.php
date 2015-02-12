@@ -2,5 +2,4 @@
 
 class BitbucketProject extends Project {
 
-
 }

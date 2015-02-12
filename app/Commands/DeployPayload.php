@@ -1,7 +1,7 @@
 <?php namespace Deploy\Commands;
 
-use Deploy\Commands\Command;
-
+use Deploy\Events\PayloadWasReceived;
+use Deploy\Payload\PayloadFactory;
 use Illuminate\Contracts\Bus\SelfHandling;
 
 class DeployPayload extends Command implements SelfHandling {
@@ -18,7 +18,7 @@ class DeployPayload extends Command implements SelfHandling {
 	 */
 	public function __construct($payload)
 	{
-		$this->payload = container($payload);
+		$this->payload = PayloadFactory::create()->make($payload);
 	}
 
 	/**
@@ -28,7 +28,6 @@ class DeployPayload extends Command implements SelfHandling {
 	 */
 	public function handle()
 	{
-		event(new PayloadWasRecieved($this->payload));
+		event(new PayloadWasReceived($this->payload));
 	}
-
 }

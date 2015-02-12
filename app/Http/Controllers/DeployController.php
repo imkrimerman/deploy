@@ -12,8 +12,6 @@ class DeployController extends Controller {
      */
     public function run(DeployRequest $request)
     {
-//        $payload = container($request->get('payload'));
-
         $this->dispatchFrom(DeployPayload::class, $request);
     }
 }

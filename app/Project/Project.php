@@ -1,25 +1,76 @@
 <?php namespace Deploy\Project;
 
-use Deploy\Deploy\Configurator;
-use im\Primitive\Container\Container;
-use Symfony\Component\Yaml\Yaml;
+use Deploy\Contracts\RepositoryContract;
+use Deploy\Payload\PayloadContract;
 
 abstract class Project implements ProjectContract {
 
     /**
-     * Payload
+     * Received payload.
      *
-     * @var \im\Primitive\Container\Container
+     * @var \Deploy\Payload\PayloadContract
      */
     protected $payload;
 
     /**
-     * Constructor.
+     * Project Repository.
      *
-     * @param \im\Primitive\Container\Container $payload
+     * @var \Deploy\Contracts\RepositoryContract
      */
-    public function __construct(Container $payload)
+    protected $repository;
+
+    /**
+     * Project configuration
+     *
+     * @var \im\Primitive\Container\Container
+     */
+    protected $config;
+
+    /**
+     * Construct.
+     *
+     * @param \Deploy\Project\ProjectRepository $repository
+     */
+    public function __construct(ProjectRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
+    /**
+     * Add payload to a Project
+     *
+     * @param \Deploy\Payload\PayloadContract $payload
+     * @return $this
+     */
+    public function payload(PayloadContract $payload)
     {
         $this->payload = $payload;
+        $this->config = $this->configure();
+
+        return $this;
+    }
+
+    /**
+     * Return Project configuration.
+     *
+     * @return \im\Primitive\Container\Container
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * Get Project configuration from Project Repository.
+     *
+     * @return \im\Primitive\Container\Container
+     */
+    protected function configure()
+    {
+        $project = $this->payload->getName();
+
+        if ( ! $this->repository->has($project)) return container();
+
+        return container($this->repository->get($project));
     }
 }

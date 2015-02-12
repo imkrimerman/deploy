@@ -1,28 +1,27 @@
 <?php namespace Deploy\Deploy;
 
-use im\Primitive\Container\Container;
+use Deploy\Events\PayloadWasReceived;
+use Deploy\Events\ProjectWasCreated;
+use Deploy\Project\ProjectFactory;
 
 class Deploy {
 
     /**
-     * Deploy Project.
+     * Project.
      *
-     * @var \im\Primitive\Container\Container
+     * @var \Deploy\Project\ProjectContract
      */
     protected $project;
 
-    public function project()
+    public function project(PayloadWasReceived $event)
     {
+        $this->project = ProjectFactory::create()->make($event->payload);
 
+        event(new ProjectWasCreated($this->project));
     }
 
-    public function execute()
+    public function execute(ProjectWasCreated $project)
     {
 
-    }
-
-    public static function create()
-    {
-        return new static;
     }
 }

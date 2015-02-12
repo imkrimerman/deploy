@@ -1,9 +1,11 @@
 <?php namespace Deploy\Project;
 
+use Deploy\Contracts\RepositoryContract;
 use Deploy\Deploy\Configurator;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Yaml\Yaml;
 
-class ProjectRepository {
+class ProjectRepository implements RepositoryContract{
 
     /**
      * Deploy configurator.
@@ -30,7 +32,7 @@ class ProjectRepository {
      * Constructor.
      *
      * @param \Deploy\Deploy\Configurator $config
-     * @param \Deploy\Project\Yaml $yaml
+     * @param \Symfony\Component\Yaml\Yaml $yaml
      */
     public function __construct(Configurator $config, Yaml $yaml)
     {
@@ -54,7 +56,7 @@ class ProjectRepository {
      * Retrieve project by $name.
      *
      * @param mixed $name
-     * @return mixed
+     * @return \im\Primitive\Container\Container
      */
     public function get($name)
     {
@@ -78,10 +80,10 @@ class ProjectRepository {
      */
     protected function getProjects()
     {
-        $finder = Finder::create();
+        $finder = Finder::create()->ignoreDotFiles(false)->depth(2)->files();
 
         $projects = iterator_to_array(
-            $finder->files()->name($this->config->getFile())->in($this->config->getDirectory())
+            $finder->name($this->config->getFile())->in($this->config->getDirectory())
         );
 
         foreach ($projects as $key => $project)

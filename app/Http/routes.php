@@ -3,4 +3,4 @@
 /**
  * Deploy route
  */
-Route::post('/', 'DeployController@run');
+Route::post('/deploy', 'DeployController@run');

@@ -1,5 +1,7 @@
 <?php namespace Deploy\Providers;
 
+use Deploy\Events\PayloadWasReceived;
+use Deploy\Events\ProjectWasCreated;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -11,9 +13,8 @@ class EventServiceProvider extends ServiceProvider {
 	 * @var array
 	 */
 	protected $listen = [
-		'event.name' => [
-			'EventListener',
-		],
+		PayloadWasReceived::class => ['Deploy\Deploy\Deploy@project'],
+		ProjectWasCreated::class => ['Deploy\Deploy\Deploy@execute']
 	];
 
 	/**
