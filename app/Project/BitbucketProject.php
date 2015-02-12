@@ -13,20 +13,13 @@ class BitbucketProject extends Project {
 
         $branches = container();
 
-        if ($commits->isEmpty())
-        {
-            $this->setState('merge');
-
-            return $branches;
-        }
+        if ($commits->isEmpty()) return $branches;
 
         $commits->each(function($commit) use ($branches)
         {
             $branches->push($commit['branch']);
         });
 
-        $this->setState('pull');
-
-        return $branches;
+        return $branches->unique();
     }
 }

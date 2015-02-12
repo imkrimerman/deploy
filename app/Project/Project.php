@@ -70,6 +70,7 @@ abstract class Project implements ProjectContract {
         $this->payload = $payload;
         $this->config = $this->configure();
         $this->branches = $this->detectBranches();
+        $this->state = $this->stateFromBranches($this->branches);
         $this->exists = $this->config->get('exists');
 
         return $this;
@@ -106,14 +107,16 @@ abstract class Project implements ProjectContract {
     }
 
     /**
-     * Set Project pending state.
+     * Set Project pending state from branches.
      *
-     * @param string $state
-     * @return $this
+     * @param \im\Primitive\Container\Container $branches
+     * @return \im\Primitive\String\String
      */
-    public function setState($state)
+    public function stateFromBranches($branches)
     {
-        $this->state = string($state);
+        $state = $branches->isEmpty() ? 'merge' : 'pull';
+
+        return string($state);
     }
 
     /**
