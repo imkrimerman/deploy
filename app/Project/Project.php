@@ -67,10 +67,32 @@ abstract class Project implements ProjectContract {
      */
     protected function configure()
     {
-        $project = $this->payload->getName();
+        $project = $this->payload->getSlug();
 
-        if ( ! $this->repository->has($project)) return container();
+        if ( ! $this->repository->has($project))
+        {
+            return container($this->makeConfigFromPayload());
+        }
 
         return container($this->repository->get($project));
+    }
+
+    /**
+     * Make configuration from payload.
+     *
+     * @return array
+     */
+    protected function makeConfigFromPayload()
+    {
+        $root = $this->repository->getConfigurator()->getDirectory();
+
+        return [
+            'file' => [
+                'name' => $this->payload->getName(),
+                'slug' => $this->payload->getSlug()
+            ],
+            'path' => $root.DIRECTORY_SEPARATOR.$this->payload->getSlug(),
+            'exists' => false
+        ];
     }
 }

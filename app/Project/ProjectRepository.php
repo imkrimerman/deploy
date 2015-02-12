@@ -80,19 +80,49 @@ class ProjectRepository implements RepositoryContract{
      */
     protected function getProjects()
     {
-        $finder = Finder::create()->ignoreDotFiles(false)->depth(2)->files();
+        $projects = iterator_to_array($this->getFinder());
 
-        $projects = iterator_to_array(
-            $finder->name($this->config->getFile())->in($this->config->getDirectory())
-        );
-
-        foreach ($projects as $key => $project)
+        foreach ($projects as $path => $fileInfo)
         {
-            $parsed = $this->yaml->parse($project);
+            unset($projects[$path]);
 
-            $projects[$parsed['name']] = $parsed;
+            $file = string($path)->contents()->value();
+
+            $parsed = $this->yaml->parse($file);
+
+            $projects[$parsed['slug']] = [
+                'file' => $parsed,
+                'path' => pathinfo($path, PATHINFO_DIRNAME),
+                'fileInfo' => $fileInfo,
+                'exists' => true
+            ];
         }
 
         return container($projects);
+    }
+
+    /**
+     * Get Projects Finder.
+     *
+     * @param int $depth
+     * @return \Symfony\Component\Finder\Finder
+     */
+    protected function getFinder($depth = 1)
+    {
+        $find = Finder::create()->ignoreDotFiles(false)->files()->depth($depth);
+
+        return $find->in($this->config->getDirectory())
+                    ->name($this->config->getFile()->value());
+
+    }
+
+    /**
+     * Return Configurator.
+     *
+     * @return Configurator
+     */
+    public function getConfigurator()
+    {
+        return $this->config;
     }
 }
