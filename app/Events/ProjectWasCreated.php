@@ -1,6 +1,6 @@
 <?php namespace Deploy\Events;
 
-use Deploy\Project\ProjectContract;
+use Deploy\Contracts\ProjectContract;
 use Illuminate\Queue\SerializesModels;
 
 class ProjectWasCreated extends Event {
@@ -15,7 +15,7 @@ class ProjectWasCreated extends Event {
 	/**
 	 * Create a new event instance.
 	 *
-	 * @param \Deploy\Project\ProjectContract $project
+	 * @param \Deploy\Contracts\ProjectContract $project
 	 */
 	public function __construct(ProjectContract $project)
 	{

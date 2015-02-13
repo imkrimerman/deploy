@@ -32,21 +32,28 @@ class Deploy {
         $this->commander = $commander;
     }
 
+    /**
+     * Register project. And fire event after creation.
+     *
+     * @param \Deploy\Events\PayloadWasReceived $event
+     */
     public function project(PayloadWasReceived $event)
     {
         $this->project = ProjectFactory::create()->make($event->payload);
 
         event(new ProjectWasCreated($this->project));
+
+        $this->execute();
     }
 
     public function execute()
     {
-        if ( ! $this->project->exists)
+        if ($this->project->exists)
         {
-            return $this->handleNewProject($this->project);
+            return $this->handleProject($this->project);
         }
 
-        return $this->handleProject($this->project);
+        return $this->handleNewProject($this->project);
     }
 
     protected function handleProject(ProjectContract $project)

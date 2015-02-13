@@ -1,27 +1,29 @@
 <?php namespace Deploy\Project;
 
+use Deploy\Contracts\PayloadContract;
 use Deploy\Payload\BitbucketPayload;
 use Deploy\Payload\GithubPayload;
-use Deploy\Payload\PayloadContract;
+use UnexpectedValueException;
+
 
 class ProjectFactory {
 
     /**
      * Make new Payload instance. Depends on payload.
      *
-     * @param \Deploy\Payload\PayloadContract $payload
-     * @return \Deploy\Project\ProjectContract
+     * @param \Deploy\Contracts\PayloadContract $payload
+     * @return \Deploy\Contracts\ProjectContract
      */
     public function make(PayloadContract $payload)
     {
         switch(true)
         {
             case $payload instanceof BitbucketPayload:
-                return app('project.bitbucket')->payload($payload);
+                return app('project.bitbucket')->registerPayload($payload);
             case $payload instanceof GithubPayload:
-                return app('project.github')->payload($payload);
+                return app('project.github')->registerPayload($payload);
             default:
-                throw new \UnexpectedValueException('Can\'t detect payload.');
+                throw new UnexpectedValueException('Can\'t detect payload.');
         }
     }
 

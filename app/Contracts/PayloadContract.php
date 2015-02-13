@@ -1,13 +1,8 @@
-<?php namespace Deploy\Payload;
+<?php namespace Deploy\Contracts;
 
-use im\Primitive\Container\Container;
+use im\Primitive\Support\Contracts\ContainerContract;
 
-interface PayloadContract {
-
-    /**
-     * @param \im\Primitive\Container\Container $payload
-     */
-    public function __construct(Container $payload);
+interface PayloadContract extends ContainerContract {
 
     /**
      * @return \im\Primitive\String\String

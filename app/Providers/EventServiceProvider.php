@@ -14,7 +14,6 @@ class EventServiceProvider extends ServiceProvider {
 	 */
 	protected $listen = [
 		PayloadWasReceived::class => ['Deploy\Deploy\Deploy@project'],
-		ProjectWasCreated::class => ['Deploy\Deploy\Deploy@execute']
 	];
 
 	/**

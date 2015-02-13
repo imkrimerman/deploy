@@ -1,7 +1,7 @@
 <?php namespace Deploy\Events;
 
+use Deploy\Contracts\PayloadContract;
 use Illuminate\Queue\SerializesModels;
-use Deploy\Payload\PayloadContract;
 
 class PayloadWasReceived extends Event {
 
@@ -17,7 +17,7 @@ class PayloadWasReceived extends Event {
 	/**
 	 * Create a new event instance.
 	 *
-	 * @param \Deploy\Payload\PayloadContract $payload
+	 * @param \Deploy\Contracts\PayloadContract $payload
 	 */
 	public function __construct(PayloadContract $payload)
 	{

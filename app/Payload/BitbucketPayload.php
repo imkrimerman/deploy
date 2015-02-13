@@ -9,7 +9,7 @@ class BitbucketPayload extends Payload {
      */
     public function getName()
     {
-        return string($this->payload->get('repository.name'));
+        return string($this->get('repository.name'));
     }
 
     /**
@@ -19,7 +19,7 @@ class BitbucketPayload extends Payload {
      */
     public function getSlug()
     {
-        return string($this->payload->get('repository.slug'));
+        return string($this->get('repository.slug'));
     }
 
     /**
@@ -29,6 +29,6 @@ class BitbucketPayload extends Payload {
      */
     public function getCommits()
     {
-        return container($this->payload->get('commits'));
+        return container($this->get('commits'));
     }
 }

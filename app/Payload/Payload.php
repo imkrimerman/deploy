@@ -1,25 +1,9 @@
 <?php namespace Deploy\Payload;
 
+use Deploy\Contracts\PayloadContract;
 use im\Primitive\Container\Container;
 
-abstract class Payload implements PayloadContract {
-
-    /**
-     * Payload
-     *
-     * @var \im\Primitive\Container\Container
-     */
-    protected $payload;
-
-    /**
-     * Constructor.
-     *
-     * @param \im\Primitive\Container\Container $payload
-     */
-    public function __construct(Container $payload)
-    {
-        $this->payload = $payload;
-    }
+abstract class Payload extends Container implements PayloadContract {
 
     /**
      * Get project name.

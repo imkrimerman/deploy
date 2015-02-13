@@ -1,4 +1,4 @@
-<?php namespace Deploy\Commander;
+<?php namespace Deploy\Vcs;
 
 use Deploy\Contracts\VcsContract;
 

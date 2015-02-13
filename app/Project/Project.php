@@ -1,9 +1,7 @@
 <?php namespace Deploy\Project;
 
-use Deploy\Contracts\RepositoryContract;
-use Deploy\Payload\PayloadContract;
-use im\Primitive\String\String;
-
+use Deploy\Contracts\PayloadContract;
+use Deploy\Contracts\ProjectContract;
 
 abstract class Project implements ProjectContract {
 
@@ -62,10 +60,10 @@ abstract class Project implements ProjectContract {
     /**
      * Add payload to a Project
      *
-     * @param \Deploy\Payload\PayloadContract $payload
+     * @param \Deploy\Contracts\PayloadContract $payload
      * @return $this
      */
-    public function payload(PayloadContract $payload)
+    public function registerPayload(PayloadContract $payload)
     {
         $this->payload = $payload;
         $this->config = $this->configure();
