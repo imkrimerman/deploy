@@ -1,5 +1,6 @@
 <?php namespace Deploy\Deploy;
 
+use Deploy\Commander\Commander;
 use Deploy\Events\PayloadWasReceived;
 use Deploy\Events\ProjectWasCreated;
 use Deploy\Project\ProjectContract;
@@ -17,20 +18,18 @@ class Deploy {
     protected $project;
 
     /**
-     * Filesystem
-     *
-     * @var \Illuminate\Filesystem\Filesystem
+     * @var \Deploy\Commander\Commander
      */
-    protected $filesystem;
+    protected $commander;
 
     /**
      * Construct.
      *
-     * @param \Illuminate\Filesystem\Filesystem $filesystem
+     * @param \Deploy\Commander\Commander $commander
      */
-    public function __construct(Filesystem $filesystem)
+    public function __construct(Commander $commander)
     {
-        $this->filesystem = $filesystem;
+        $this->commander = $commander;
     }
 
     public function project(PayloadWasReceived $event)
@@ -55,22 +54,8 @@ class Deploy {
 
     }
 
-    /**
-     * Change current working directory.
-     * If $dir is null than it changes to Deploy base path.
-     *
-     * @param null|string $dir
-     * @return $this
-     */
-    protected function changeDir($dir = null)
+    protected function handleNewProject(ProjectContract $project)
     {
-        if ( ! is_null($dir) && $this->filesystem->isDirectory($dir))
-        {
-            chdir($dir);
-        }
 
-        chdir(base_path());
-
-        return $this;
     }
 }

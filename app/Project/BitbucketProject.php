@@ -22,4 +22,17 @@ class BitbucketProject extends Project {
 
         return $branches->unique();
     }
+
+    /**
+     * Set Project pending state from branches.
+     *
+     * @param \im\Primitive\Container\Container $branches
+     * @return \im\Primitive\String\String
+     */
+    public function stateFromBranches($branches)
+    {
+        $state = $branches->isEmpty() ? 'merge' : 'pull';
+
+        return string($state);
+    }
 }

@@ -26,7 +26,7 @@ class Git implements VcsContract {
      */
     public function pull()
     {
-        return "{$this->git} pull";
+        return $this->command('pull');
     }
 
     /**
@@ -36,7 +36,18 @@ class Git implements VcsContract {
      */
     public function push()
     {
-        return "{$this->git} push";
+        return $this->command('push');
+    }
+
+    /**
+     * Change branch.
+     *
+     * @param string $branch
+     * @return string
+     */
+    public function checkout($branch)
+    {
+        return $this->command("checkout {$branch}");
     }
 
     /**
@@ -48,7 +59,9 @@ class Git implements VcsContract {
      */
     public function commit($message, $options = '')
     {
-        return "{$this->git} commit -a -m '{$message}' {$options}";
+        if ( ! empty($options)) $options = ' '.$options;
+
+        return $this->command("commit -a -m '{$message}'{$options}");
     }
 
     /**
@@ -58,6 +71,17 @@ class Git implements VcsContract {
      */
     public function reset()
     {
-        return "{$this->git} reset --hard HEAD";
+        return $this->command('reset --hard HEAD');
+    }
+
+    /**
+     * Make new command.
+     *
+     * @param string $command
+     * @return string
+     */
+    public function command($command)
+    {
+        return "{$this->git} {$command}";
     }
 }

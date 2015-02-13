@@ -107,19 +107,6 @@ abstract class Project implements ProjectContract {
     }
 
     /**
-     * Set Project pending state from branches.
-     *
-     * @param \im\Primitive\Container\Container $branches
-     * @return \im\Primitive\String\String
-     */
-    public function stateFromBranches($branches)
-    {
-        $state = $branches->isEmpty() ? 'merge' : 'pull';
-
-        return string($state);
-    }
-
-    /**
      * Get Project configuration from Project Repository.
      *
      * @return \im\Primitive\Container\Container
@@ -161,4 +148,12 @@ abstract class Project implements ProjectContract {
      * @return \im\Primitive\Container\Container
      */
     abstract protected function detectBranches();
+
+    /**
+     * Set Project pending state from branches.
+     *
+     * @param \im\Primitive\Container\Container $branches
+     * @return \im\Primitive\String\String
+     */
+    abstract public function stateFromBranches($branches);
 }

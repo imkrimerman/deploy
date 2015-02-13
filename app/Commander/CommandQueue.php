@@ -73,4 +73,15 @@ class CommandQueue {
     {
         return $this->queue->shift();
     }
+
+    /**
+     * Process (join) all commands.
+     *
+     * @param string $sequence
+     * @return \im\Primitive\String\String
+     */
+    public function processAll($sequence = '|')
+    {
+        return $this->queue->join($sequence);
+    }
 }
