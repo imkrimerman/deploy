@@ -11,19 +11,19 @@ class Commander {
      *
      * @var \Deploy\Commander\CommandQueue
      */
-    private $queue;
+    protected $queue;
 
     /**
      * Vcs commander.
      *
      * @var \Deploy\Contracts\VcsContract
      */
-    private $vcs;
+    protected $vcs;
 
     /**
      * @var \Illuminate\Filesystem\Filesystem
      */
-    private $filesystem;
+    protected $filesystem;
 
     /**
      * Construct.
@@ -46,7 +46,7 @@ class Commander {
      * @param null|string $dir
      * @return $this
      */
-    protected function dir($dir = null)
+    public function dir($dir = null)
     {
         if ( ! is_null($dir) && $this->filesystem->isDirectory($dir))
         {
@@ -56,5 +56,25 @@ class Commander {
         chdir(base_path());
 
         return $this;
+    }
+
+    /**
+     * Get Vcs Instance.
+     *
+     * @return VcsContract
+     */
+    public function getVcs()
+    {
+        return $this->vcs;
+    }
+
+    /**
+     * Get Queue Instance.
+     *
+     * @return CommandQueue
+     */
+    public function getQueue()
+    {
+        return $this->queue;
     }
 }

@@ -12,6 +12,7 @@ class Kernel extends ConsoleKernel {
 	 */
 	protected $commands = [
 		'Deploy\Console\Commands\Inspire',
+		'Deploy\Console\Commands\SelfUpdate',
 	];
 
 	/**
@@ -22,8 +23,7 @@ class Kernel extends ConsoleKernel {
 	 */
 	protected function schedule(Schedule $schedule)
 	{
-		$schedule->command('inspire')
-				 ->hourly();
+		$schedule->command('self-update')->saturdays();
 	}
 
 }
