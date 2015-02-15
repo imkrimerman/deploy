@@ -7,7 +7,7 @@ use Illuminate\Contracts\Bus\SelfHandling;
 class DeployPayload extends Command implements SelfHandling {
 
 	/**
-	 * @var \im\Primitive\Container\Container
+	 * @var \Deploy\Contracts\PayloadContract
      */
 	protected $payload;
 
@@ -22,7 +22,7 @@ class DeployPayload extends Command implements SelfHandling {
 	}
 
 	/**
-	 * Execute the command.
+	 * Fire event. Execute the command.
 	 *
 	 * @return void
 	 */

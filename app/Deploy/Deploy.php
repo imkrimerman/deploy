@@ -1,23 +1,23 @@
 <?php namespace Deploy\Deploy;
 
 use Deploy\Commander\Commander;
+use Deploy\Contracts\ProjectContract;
 use Deploy\Events\PayloadWasReceived;
 use Deploy\Events\ProjectWasCreated;
-use Deploy\Project\ProjectContract;
 use Deploy\Project\ProjectFactory;
-use Illuminate\Filesystem\Filesystem;
-
 
 class Deploy {
 
     /**
      * Project.
      *
-     * @var \Deploy\Project\ProjectContract
+     * @var \Deploy\Contracts\ProjectContract
      */
     protected $project;
 
     /**
+     * Commander.
+     *
      * @var \Deploy\Commander\Commander
      */
     protected $commander;
@@ -33,7 +33,7 @@ class Deploy {
     }
 
     /**
-     * Register project. And fire event after creation.
+     * Register project. Fire event. Start execution.
      *
      * @param \Deploy\Events\PayloadWasReceived $event
      */
@@ -48,20 +48,23 @@ class Deploy {
 
     public function execute()
     {
-        if ($this->project->exists)
+        switch($this->project->exists)
         {
-            return $this->handleProject($this->project);
+            case true:
+                return $this->executeProject($this->project);
+            case false:
+                return $this->executeNewProject($this->project);
         }
-
-        return $this->handleNewProject($this->project);
     }
 
-    protected function handleProject(ProjectContract $project)
+    protected function executeProject(ProjectContract $project)
     {
+        $config = $project->getConfig();
 
+        $this->commander->dir($config->path);
     }
 
-    protected function handleNewProject(ProjectContract $project)
+    protected function executeNewProject(ProjectContract $project)
     {
 
     }

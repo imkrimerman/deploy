@@ -31,4 +31,14 @@ class BitbucketPayload extends Payload {
     {
         return container($this->get('commits'));
     }
+
+    /**
+     * Get project owner.
+     *
+     * @return  \im\Primitive\String\String
+     */
+    public function getOwner()
+    {
+        return string($this->get('repository.owner'));
+    }
 }

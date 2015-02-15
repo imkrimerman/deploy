@@ -6,6 +6,13 @@ use Deploy\Contracts\ProjectContract;
 abstract class Project implements ProjectContract {
 
     /**
+     * Remote Provider.
+     *
+     * @var string
+     */
+    protected $provider;
+
+    /**
      * Received payload.
      *
      * @var \Deploy\Payload\PayloadContract
@@ -13,25 +20,11 @@ abstract class Project implements ProjectContract {
     protected $payload;
 
     /**
-     * Project Repository.
-     *
-     * @var \Deploy\Contracts\RepositoryContract
-     */
-    protected $repository;
-
-    /**
      * Project configuration
      *
-     * @var \im\Primitive\Container\Container
+     * @var \Deploy\Project\ProjectConfig
      */
     protected $config;
-
-    /**
-     * Project exist flag.
-     *
-     * @var bool
-     */
-    public $exists;
 
     /**
      * Project branches.
@@ -46,15 +39,22 @@ abstract class Project implements ProjectContract {
      * @var string
      */
     protected $state;
-    
+
+    /**
+     * Project exist flag.
+     *
+     * @var bool
+     */
+    public $exists;
+
     /**
      * Construct.
      *
-     * @param \Deploy\Project\ProjectRepository $repository
+     * @param \Deploy\Project\ProjectConfig $config
      */
-    public function __construct(ProjectRepository $repository)
+    public function __construct(ProjectConfig $config)
     {
-        $this->repository = $repository;
+        $this->config = $config;
     }
 
     /**
@@ -66,18 +66,29 @@ abstract class Project implements ProjectContract {
     public function registerPayload(PayloadContract $payload)
     {
         $this->payload = $payload;
-        $this->config = $this->configure();
         $this->branches = $this->detectBranches();
         $this->state = $this->stateFromBranches($this->branches);
         $this->exists = $this->config->get('exists');
+
+        $this->config->configure($this);
 
         return $this;
     }
 
     /**
+     * Get payload.
+     *
+     * @return \Deploy\Payload\PayloadContract
+     */
+    public function getPayload()
+    {
+        return $this->payload;
+    }
+
+    /**
      * Return Project configuration.
      *
-     * @return \im\Primitive\Container\Container
+     * @return \Deploy\Project\ProjectConfig
      */
     public function getConfig()
     {
@@ -87,7 +98,7 @@ abstract class Project implements ProjectContract {
     /**
      * Return Project branch.
      *
-     * @return string
+     * @return \im\Primitive\Container\Container
      */
     public function getBranches()
     {
@@ -105,39 +116,13 @@ abstract class Project implements ProjectContract {
     }
 
     /**
-     * Get Project configuration from Project Repository.
+     * Return remote provider.
      *
-     * @return \im\Primitive\Container\Container
+     * @return string
      */
-    protected function configure()
+    public function getProvider()
     {
-        $project = $this->payload->getSlug();
-
-        if ( ! $this->repository->has($project))
-        {
-            return container($this->makeConfigFromPayload());
-        }
-
-        return container($this->repository->get($project));
-    }
-
-    /**
-     * Make configuration from payload.
-     *
-     * @return array
-     */
-    protected function makeConfigFromPayload()
-    {
-        $root = $this->repository->getConfigurator()->getDirectory();
-
-        return [
-            'file' => [
-                'name' => $this->payload->getName(),
-                'slug' => $this->payload->getSlug()
-            ],
-            'path' => $root.DIRECTORY_SEPARATOR.$this->payload->getSlug(),
-            'exists' => false
-        ];
+        return $this->provider;
     }
 
     /**

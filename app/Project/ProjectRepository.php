@@ -125,4 +125,15 @@ class ProjectRepository implements RepositoryContract{
     {
         return $this->config;
     }
+
+    /**
+     * Return parsed Yaml configuration.
+     *
+     * @param string $yamlConfig
+     * @return array
+     */
+    public function parseConfig($yamlConfig)
+    {
+        return $this->yaml->parse($yamlConfig);
+    }
 }

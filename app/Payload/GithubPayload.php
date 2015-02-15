@@ -31,4 +31,14 @@ class GithubPayload extends Payload{
     {
         // TODO: Implement getCommits() method.
     }
+
+    /**
+     * Get project owner.
+     *
+     * @return  \im\Primitive\String\String
+     */
+    public function getOwner()
+    {
+        // TODO: Implement getOwner() method.
+    }
 }

@@ -30,5 +30,4 @@ class AppServiceProvider extends ServiceProvider {
 		$this->app->bind('project.bitbucket', 'Deploy\Project\BitbucketProject');
 		$this->app->bind('project.github', 'Deploy\Project\GithubProject');
 	}
-
 }

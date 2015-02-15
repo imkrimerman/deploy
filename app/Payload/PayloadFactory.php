@@ -7,7 +7,7 @@ class PayloadFactory {
      * Make new Payload instance depending on payload.
      *
      * @param string $payload
-     * @return \Deploy\Payload\PayloadContract
+     * @return \Deploy\Contracts\PayloadContract
      */
     public function make($payload)
     {

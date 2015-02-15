@@ -3,6 +3,13 @@
 class GithubProject extends Project {
 
     /**
+     * Remote Provider.
+     *
+     * @var string
+     */
+    protected $provider = 'github';
+
+    /**
      * Detect Project branches.
      *
      * @return \im\Primitive\Container\Container

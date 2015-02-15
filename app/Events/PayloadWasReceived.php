@@ -10,7 +10,7 @@ class PayloadWasReceived extends Event {
 	/**
 	 * Payload.
 	 *
-	 * @var \Deploy\Payload\PayloadContract
+	 * @var \Deploy\Contracts\PayloadContract
 	 */
 	public $payload;
 

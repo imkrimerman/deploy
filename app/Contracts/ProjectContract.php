@@ -1,15 +1,15 @@
 <?php namespace Deploy\Contracts;
 
-use Deploy\Project\ProjectRepository;
+use Deploy\Project\ProjectConfig;
 
 interface ProjectContract {
 
     /**
      * Construct.
      *
-     * @param \Deploy\Project\ProjectRepository $repository
+     * @param \Deploy\Project\ProjectConfig $repository
      */
-    public function __construct(ProjectRepository $repository);
+    public function __construct(ProjectConfig $repository);
 
     /**
      * Return Project configuration.
@@ -39,4 +39,18 @@ interface ProjectContract {
      * @return \im\Primitive\String\String
      */
     public function stateFromBranches($branches);
+
+    /**
+     * Return payload.
+     *
+     * @return \Deploy\Contracts\PayloadContract
+     */
+    public function getPayload();
+
+    /**
+     * Return remote provider.
+     *
+     * @return string
+     */
+    public function getProvider();
 }

@@ -1,0 +1,14 @@
+name: Project X
+slug: project-x
+branch: master
+provider: bitbucket
+sequence: "|"
+scripts:
+  after-clone:
+    - composer install
+  after-update:
+    - composer update
+    - npm update
+    - gulp
+  schedule:
+    weekly: php artisan self-update

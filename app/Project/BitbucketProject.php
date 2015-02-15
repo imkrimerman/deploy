@@ -3,6 +3,13 @@
 class BitbucketProject extends Project {
 
     /**
+     * Remote Provider.
+     *
+     * @var string
+     */
+    protected $provider = 'bitbucket';
+
+    /**
      * Detect Project branches.
      *
      * @return \im\Primitive\Container\Container

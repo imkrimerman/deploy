@@ -3,7 +3,6 @@
 use Deploy\Contracts\VcsContract;
 use Illuminate\Filesystem\Filesystem;
 
-
 class Commander {
 
     /**
@@ -39,6 +38,11 @@ class Commander {
         $this->filesystem = $filesystem;
     }
 
+    public function registerProjectConfig()
+    {
+
+    }
+
     /**
      * Change current working directory.
      * If $dir is null than it changes to Deploy base path.
@@ -48,12 +52,9 @@ class Commander {
      */
     public function dir($dir = null)
     {
-        if ( ! is_null($dir) && $this->filesystem->isDirectory($dir))
-        {
-            chdir($dir);
-        }
+        if (is_null($dir)) chdir(base_path());
 
-        chdir(base_path());
+        if ($this->filesystem->isDirectory($dir)) chdir($dir);
 
         return $this;
     }
@@ -76,5 +77,31 @@ class Commander {
     public function getQueue()
     {
         return $this->queue;
+    }
+
+    /**
+     * Set Vcs Instance.
+     *
+     * @param VcsContract $vcs
+     * @return $this
+     */
+    public function setVcs($vcs)
+    {
+        $this->vcs = $vcs;
+
+        return $this;
+    }
+
+    /**
+     * Set Queue Instance.
+     *
+     * @param CommandQueue $queue
+     * @return $this
+     */
+    public function setQueue($queue)
+    {
+        $this->queue = $queue;
+
+        return $this;
     }
 }
