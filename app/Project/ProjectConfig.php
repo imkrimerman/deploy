@@ -77,7 +77,8 @@ class ProjectConfig extends Object {
 
         if ($this->repository->has($slug))
         {
-            $config = $this->mirrorIfHas($this->repository->get($slug));
+            $config = $this->mirrorIfHas($this->repository->get($slug))
+                           ->set('configured', true);
         }
         else
         {
@@ -88,7 +89,7 @@ class ProjectConfig extends Object {
 
         if (is_null($latest) || $this->isEqualConfig($latest, $config))
         {
-            return $config->set('configured', true);
+            return $config;
         }
 
         return $latest->set('configured', true);
@@ -154,10 +155,10 @@ class ProjectConfig extends Object {
     /**
      * Map working dir to mirrored if exists.
      *
-     * @param \Deploy\Project\ProjectConfig $config
+     * @param \im\Primitive\Container\Container $config
      * @return \Deploy\Project\ProjectConfig
      */
-    protected function mirrorIfHas(ProjectConfig $config)
+    protected function mirrorIfHas(Container $config)
     {
         if ($config->has('file.mirror'))
         {
@@ -202,15 +203,20 @@ class ProjectConfig extends Object {
      */
     public function value()
     {
-        $hidden = ['repository'];
-
         $vars = parent::value();
 
-        foreach ($vars as $property => $value)
+        foreach ($vars['file'] as $key => $var)
         {
-            if (in_array($property, $hidden)) unset($vars[$property]);
+            if ($this->isStringable($var))
+            {
+                $vars['file'][$key] = $this->getStringable($var);
+            }
+            elseif ($this->isArrayable($var))
+            {
+                $vars['file'][$key] = $this->getArrayable($var);
+            }
         }
 
-        return $vars;
+        return $vars['file'];
     }
 }

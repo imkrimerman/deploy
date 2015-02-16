@@ -88,15 +88,23 @@ class Commander {
         $this->filesystem = $filesystem;
     }
 
+    /**
+     * Init and handle project.
+     *
+     * @param \Deploy\Contracts\ProjectContract $project
+     */
     public function handleProject(ProjectContract $project)
     {
         $this->init($project);
 
         $this->dir($this->dir)->actionFromState($this->projectState);
 
-        $this->configureIfNotConfigured()->execute();
+        $this->execute();
     }
 
+    /**
+     * Execute prepared command queue.
+     */
     protected function execute()
     {
         $command = $this->queue->processAll($this->sequence);
@@ -368,7 +376,6 @@ class Commander {
         {
             case 'pull':
             case 'merge':
-            case 'setup':
                 return 'update';
             case 'clone':
                 return 'clone';
@@ -390,9 +397,9 @@ class Commander {
      */
     protected function shell(String $command)
     {
-        $output = shell_exec($command());
+        $output = shell_exec($command()." 2>&1");
 
-        return string(($output ? '' : $output));
+        return string((is_string($output) ? $output : ''));
     }
 
     /**

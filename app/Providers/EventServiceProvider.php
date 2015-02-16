@@ -1,6 +1,7 @@
 <?php namespace Deploy\Providers;
 
 use Deploy\Events\ChangedWorkingDir;
+use Deploy\Events\CommandWasExecuted;
 use Deploy\Events\PayloadWasReceived;
 use Deploy\Events\ProjectWasCreated;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
@@ -23,6 +24,9 @@ class EventServiceProvider extends ServiceProvider {
 		],
 		ChangedWorkingDir::class => [
 			'Deploy\Support\Logger@changedWorkingDir'
+		],
+		CommandWasExecuted::class => [
+			'Deploy\Support\Logger@commandExecuted'
 		]
 	];
 

@@ -1,6 +1,7 @@
 <?php namespace Deploy\Support;
 
 use Deploy\Events\ChangedWorkingDir;
+use Deploy\Events\CommandWasExecuted;
 use Deploy\Events\PayloadWasReceived;
 use Deploy\Events\ProjectWasCreated;
 
@@ -55,6 +56,17 @@ class Logger {
     public function changedWorkingDir(ChangedWorkingDir $event)
     {
         $this->info("Deployer changed working directory to: {$event->dir}");
+    }
+
+    /**
+     * Log when command was executed.
+     *
+     * @param \Deploy\Events\CommandWasExecuted $event
+     */
+    public function commandExecuted(CommandWasExecuted $event)
+    {
+        $this->info("Executed command: {$event->command}");
+        $this->info("Shell output: {$event->output}");
     }
 
     /**

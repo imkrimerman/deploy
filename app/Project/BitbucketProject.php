@@ -47,8 +47,6 @@ class BitbucketProject extends Project {
                 return string('merge');
             case $this->exists && ! $this->branches->isEmpty():
                 return string('pull');
-            case $this->exists && ! $this->config->configured:
-                return string('setup');
             case ! $this->exists:
                 return string('clone');
             default:

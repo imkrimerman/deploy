@@ -26,7 +26,7 @@ class Git implements VcsContract {
      */
     public function pull()
     {
-        return $this->command('pull');
+        return $this->command('pull origin');
     }
 
     /**
@@ -36,7 +36,7 @@ class Git implements VcsContract {
      */
     public function push()
     {
-        return $this->command('push');
+        return $this->command('push origin HEAD');
     }
 
     /**
@@ -48,6 +48,17 @@ class Git implements VcsContract {
     public function checkout($branch)
     {
         return $this->command("checkout {$branch}");
+    }
+
+    /**
+     * Add File.
+     *
+     * @param string $file filename
+     * @return string
+     */
+    public function add($file)
+    {
+        return $this->command("add {$file}");
     }
 
     /**

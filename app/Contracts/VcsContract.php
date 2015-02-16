@@ -68,7 +68,6 @@ interface VcsContract {
     /**
      * Clone Project.
      *
-     * @param string $url
      * @return string
      */
     public function _clone($url);
