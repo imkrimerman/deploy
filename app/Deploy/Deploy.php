@@ -28,20 +28,6 @@ class Deploy {
 
         event(new ProjectWasCreated($this->project));
 
-        $this->dispatchCommandForProject();
-    }
-
-    protected function dispatchCommandForProject()
-    {
-        if ($this->project->isExists())
-        {
-            $this->dispatch(new DeployProject($this->project));
-        }
-        else
-        {
-            $this->dispatch(new DeployNewProject($this->project));
-        }
-
-        return $this;
+        $this->dispatch(new DeployProject($this->project));
     }
 }

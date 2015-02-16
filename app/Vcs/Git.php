@@ -75,6 +75,16 @@ class Git implements VcsContract {
     }
 
     /**
+     * Clone Project.
+     *
+     * @return string
+     */
+    public function _clone()
+    {
+        return $this->command('clone');
+    }
+
+    /**
      * Make new command.
      *
      * @param string $command
@@ -84,4 +94,29 @@ class Git implements VcsContract {
     {
         return "{$this->git} {$command}";
     }
+
+    /**
+     * Get vcs path.
+     *
+     * @return string
+     */
+    public function getVcsPath()
+    {
+        return $this->git;
+    }
+
+    /**
+     * Set vcs path.
+     *
+     * @param string $vcsPath
+     * @return $this
+     */
+    public function setVcsPath($vcsPath)
+    {
+        $this->git = $vcsPath;
+
+        return $this;
+    }
+
+
 }

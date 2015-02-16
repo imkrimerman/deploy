@@ -36,7 +36,7 @@ class Configurator {
         $this->directory = string($this->repository->get('deploy.directory'));
         $this->file = string($this->repository->get('deploy.file'));
 
-        app()->instance('configurator', 'Deploy\Deploy\Configurator');
+        app()->instance('configurator', $this);
     }
 
     /**

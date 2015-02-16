@@ -144,7 +144,7 @@ return [
 		'Deploy\Providers\ConfigServiceProvider',
 		'Deploy\Providers\EventServiceProvider',
 		'Deploy\Providers\RouteServiceProvider',
-
+		'Deploy\Providers\ConstantServiceProvider'
 	],
 
 	/*

@@ -53,7 +53,7 @@ class ProjectConfig extends Object {
 
         $exists = is_dir($path) ? true : false;
 
-        return [
+        return container([
             'file' => [
                 'name' => $payload->getName(),
                 'slug' => $payload->getSlug()
@@ -61,7 +61,7 @@ class ProjectConfig extends Object {
             'path' => $path,
             'exists' => $exists,
             'configured' => false
-        ];
+        ]);
     }
 
     /**
@@ -72,13 +72,16 @@ class ProjectConfig extends Object {
      */
     protected function getConfig(ProjectContract $project)
     {
-        if ($this->repository->has($project))
+        $payload = $project->getPayload();
+        $slug = $payload->getSlug();
+
+        if ($this->repository->has($slug))
         {
-            $config = $this->repository->get($project);
+            $config = $this->repository->get($slug);
         }
         else
         {
-            $config = $this->makeConfigFromPayload($project->getPayload());
+            $config = $this->makeConfigFromPayload($payload);
         }
 
         $latest = $this->getRemoteConfig($project, $config);
@@ -88,7 +91,7 @@ class ProjectConfig extends Object {
             return $config->set('configured', true);
         }
 
-        return $latest;
+        return $latest->set('configured', true);
     }
 
     /**
@@ -102,15 +105,12 @@ class ProjectConfig extends Object {
     {
         $api = $this->getRemoteApiUrl($project, $config);
 
-        $response = (new Client())->get($api);
+        $response = (new Client())->get($api)->getResponse();
 
-        $remote = container($this->repository->parseConfig($response));
+        if (is_null($response)) return null;
 
-        if ($remote->isEmpty()) return null;
-
-        return $remote;
+        return container($this->repository->parseConfig($response->getBody(true)));
     }
-
 
     /**
      * @param \Deploy\Contracts\ProjectContract $project
@@ -124,7 +124,7 @@ class ProjectConfig extends Object {
 
         $owner = $payload->getOwner();
         $slug = $payload->getSlug();
-        $branch = $config->get('branch');
+        $branch = $config->get('file.branch');
         $file = app('configurator')->getFile();
 
         if (is_null($branch))

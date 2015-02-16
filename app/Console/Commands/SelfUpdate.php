@@ -37,7 +37,7 @@ class SelfUpdate extends Command {
 	 */
 	public function fire(Commander $commander)
 	{
-		$commander->dir();
+		$commander->selfUpdate();
 	}
 
 	/**

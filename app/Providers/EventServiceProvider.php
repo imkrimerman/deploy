@@ -13,7 +13,13 @@ class EventServiceProvider extends ServiceProvider {
 	 * @var array
 	 */
 	protected $listen = [
-		PayloadWasReceived::class => ['Deploy\Deploy\Deploy@project'],
+		PayloadWasReceived::class => [
+			'Deploy\Deploy\Deploy@project',
+			'Deploy\Support\Logger@event'
+		],
+		ProjectWasCreated::class => [
+			'Deploy\Support\Logger@event'
+		]
 	];
 
 	/**
@@ -25,8 +31,6 @@ class EventServiceProvider extends ServiceProvider {
 	public function boot(DispatcherContract $events)
 	{
 		parent::boot($events);
-
-		//
 	}
 
 }

@@ -7,7 +7,6 @@ use Deploy\Project\ProjectConfig;
 use Illuminate\Filesystem\Filesystem;
 use im\Primitive\String\String;
 
-
 class Commander {
 
     /**
@@ -71,24 +70,28 @@ class Commander {
         $this->queue = $queue;
         $this->vcs = $vcs;
         $this->filesystem = $filesystem;
-        $this->sequence = '|';
     }
 
     public function handleProject(ProjectContract $project)
     {
+        $this->init($project);
 
-    }
+        $this->dir($this->dir)->actionFromState($this->projectState);
 
-    public function handleNewProject(ProjectContract $project)
-    {
-
+        $this->execute();
     }
 
     protected function execute()
     {
         $command = $this->queue->processAll($this->sequence);
 
+        $this->fireBeforeScripts();
+
         $output = shell_exec($command());
+
+        $this->fireAfterScripts();
+
+        event(new CommandWasExecuted($command, string($output)));
     }
 
     /**
@@ -147,7 +150,7 @@ class Commander {
      */
     protected function cloneProject()
     {
-        $this->queue->push($this->vcs->clone());
+        $this->queue->push($this->vcs->_clone());
 
         return $this;
     }
@@ -170,6 +173,22 @@ class Commander {
         return $this;
     }
 
+    /**
+     * Initialize Project.
+     *
+     * @param \Deploy\Contracts\ProjectContract $project
+     * @return $this
+     */
+    protected function init(ProjectContract $project)
+    {
+        $this->config = $project->getConfig();
+        $this->sequence = $this->getCommandSequence($this->config);
+        $this->dir = $this->getWorkingDir($this->config);
+
+        $this->vcs->setVcsPath($this->getVcsPath($this->config));
+
+        return $this;
+    }
 
     /**
      * Get Project working directory.
@@ -179,12 +198,7 @@ class Commander {
      */
     protected function getWorkingDir(ProjectConfig $config)
     {
-        if ($config->has('file.mirror'))
-        {
-            return $config->get('file.mirror');
-        }
-
-        return $config->get('path');
+        return $this->retrieveConfig($config, 'file.mirror', $config->get('path'));
     }
 
     /**
@@ -196,9 +210,34 @@ class Commander {
      */
     protected function getCommandSequence(ProjectConfig $config, $default = '|')
     {
-        if ($config->has('file.sequence'))
+        return $this->retrieveConfig($config, 'file.sequence', $default);
+    }
+
+    /**
+     * Get vcs path if exists in configuration, otherwise get default.
+     *
+     * @param \Deploy\Project\ProjectConfig $config
+     * @param string $default
+     * @return mixed|null|string
+     */
+    protected function getVcsPath(ProjectConfig $config, $default = 'git')
+    {
+        return $this->retrieveConfig($config, 'file.git', $default);
+    }
+
+    /**
+     * Retrieve Config by $key, otherwise return $default.
+     *
+     * @param \Deploy\Project\ProjectConfig $config
+     * @param $key
+     * @param $default
+     * @return mixed|null
+     */
+    protected function retrieveConfig(ProjectConfig $config, $key, $default)
+    {
+        if ($config->has($key))
         {
-            return $config->get('file.sequence');
+            return $config->get($key);
         }
 
         return $default;
@@ -215,16 +254,6 @@ class Commander {
     }
 
     /**
-     * Get Queue Instance.
-     *
-     * @return CommandQueue
-     */
-    public function getQueue()
-    {
-        return $this->queue;
-    }
-
-    /**
      * Set Vcs Instance.
      *
      * @param VcsContract $vcs
@@ -236,6 +265,17 @@ class Commander {
 
         return $this;
     }
+
+    /**
+     * Get Queue Instance.
+     *
+     * @return CommandQueue
+     */
+    public function getQueue()
+    {
+        return $this->queue;
+    }
+
     /**
      * Set Queue Instance.
      *
@@ -247,5 +287,30 @@ class Commander {
         $this->queue = $queue;
 
         return $this;
+    }
+
+    protected function fireBeforeScripts()
+    {}
+
+    protected function fireAfterScripts()
+    {}
+
+    /**
+     * Update Deployer.
+     */
+    public function selfUpdate()
+    {
+        $this->dir();
+
+        $this->pullProject()->execute();
+    }
+
+    /**
+     * Destruct.
+     * Change dir to deployer base path.
+     */
+    public function __destruct()
+    {
+        $this->dir();
     }
 }

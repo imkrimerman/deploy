@@ -53,14 +53,14 @@ class ProjectRepository implements RepositoryContract{
     }
 
     /**
-     * Retrieve project by $name.
+     * Retrieve project by $slug.
      *
-     * @param mixed $name
+     * @param mixed $slug
      * @return \im\Primitive\Container\Container
      */
-    public function get($name)
+    public function get($slug)
     {
-        return $this->projects->get($name);
+        return $this->projects->get($slug);
     }
 
     /**
@@ -90,12 +90,12 @@ class ProjectRepository implements RepositoryContract{
 
             $parsed = $this->parseConfig($file);
 
-            $projects[$parsed['slug']] = [
+            $projects[$parsed['slug']] = container([
                 'file' => $parsed,
                 'path' => pathinfo($path, PATHINFO_DIRNAME),
                 'fileInfo' => $fileInfo,
                 'exists' => true
-            ];
+            ]);
         }
 
         return container($projects);

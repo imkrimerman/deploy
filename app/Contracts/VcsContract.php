@@ -1,5 +1,8 @@
 <?php namespace Deploy\Contracts;
 
+use Deploy\Vcs\Git;
+
+
 interface VcsContract {
 
     /**
@@ -46,4 +49,19 @@ interface VcsContract {
      * @return string
      */
     public function command($command);
+
+    /**
+     * Get vcs path.
+     *
+     * @return string
+     */
+    public function getVcsPath();
+
+    /**
+     * Set vcs path.
+     *
+     * @param string $vcsPath
+     * @return $this
+     */
+    public function setVcsPath($vcsPath);
 }

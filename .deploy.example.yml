@@ -1,6 +1,7 @@
 name: Project X
 slug: project-x
 branch: master
+git: git
 sequence: "|"
 mirror: ~/Users/Desktop/Code/project-x
 scripts:
