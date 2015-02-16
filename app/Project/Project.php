@@ -48,6 +48,13 @@ abstract class Project implements ProjectContract {
     protected $exists;
 
     /**
+     * Project clone url
+     *
+     * @var string
+     */
+    protected $cloneUrl;
+
+    /**
      * Construct.
      *
      * @param \Deploy\Project\ProjectConfig $config
@@ -72,6 +79,7 @@ abstract class Project implements ProjectContract {
         $this->branches = $this->detectBranches();
         $this->exists = $this->config->get('exists');
         $this->state = $this->stateFromBranches($this->branches);
+        $this->cloneUrl = $this->makeCloneUrl();
 
         return $this;
     }
@@ -127,6 +135,16 @@ abstract class Project implements ProjectContract {
     }
 
     /**
+     * Get clone url.
+     *
+     * @return string
+     */
+    public function getCloneUrl()
+    {
+        return $this->cloneUrl;
+    }
+
+    /**
      * Check if project exists in deploy.
      *
      * @return boolean
@@ -150,4 +168,11 @@ abstract class Project implements ProjectContract {
      * @return \im\Primitive\String\String
      */
     abstract public function stateFromBranches($branches);
+
+    /**
+     * Make project clone url.
+     *
+     * @return string
+     */
+    abstract protected function makeCloneUrl();
 }

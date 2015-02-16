@@ -60,4 +60,11 @@ interface ProjectContract {
      * @return boolean
      */
     public function isExists();
+
+    /**
+     * Get clone url.
+     *
+     * @return string
+     */
+    public function getCloneUrl();
 }

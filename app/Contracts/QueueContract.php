@@ -1,5 +1,8 @@
 <?php namespace Deploy\Contracts;
 
+use Deploy\Commander\CommandQueue;
+
+
 interface QueueContract {
 
     /**
@@ -24,4 +27,28 @@ interface QueueContract {
      * @return \im\Primitive\String\String
      */
     public function processAll($sequence = '|');
+
+    /**
+     * Prepend command to queue.
+     *
+     * @param string $command
+     * @return $this
+     */
+    public function prepend($command);
+
+    /**
+     * Alias for push.
+     *
+     * @param string $command
+     * @return \Deploy\Commander\CommandQueue
+     */
+    public function after($command);
+
+    /**
+     * Alias for prepend.
+     *
+     * @param string $command
+     * @return \Deploy\Commander\CommandQueue
+     */
+    public function before($command);
 }

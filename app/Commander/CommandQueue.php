@@ -60,6 +60,39 @@ class CommandQueue implements QueueContract {
     }
 
     /**
+     * Prepend command to queue.
+     *
+     * @param string $command
+     * @return $this
+     */
+    public function prepend($command)
+    {
+        return $this->queue->prepend($command);
+    }
+
+    /**
+     * Alias for push.
+     *
+     * @param string $command
+     * @return \Deploy\Commander\CommandQueue
+     */
+    public function after($command)
+    {
+        return $this->push($command);
+    }
+
+    /**
+     * Alias for prepend.
+     *
+     * @param string $command
+     * @return \Deploy\Commander\CommandQueue
+     */
+    public function before($command)
+    {
+        return $this->prepend($command);
+    }
+
+    /**
      * Pop first queued command.
      *
      * @return string
@@ -77,6 +110,8 @@ class CommandQueue implements QueueContract {
      */
     public function processAll($sequence = '|')
     {
+        $sequence = string($sequence)->surround(' ');
+
         return $this->queue->join($sequence);
     }
 }

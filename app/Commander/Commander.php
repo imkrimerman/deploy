@@ -3,6 +3,8 @@
 use Deploy\Contracts\ProjectContract;
 use Deploy\Contracts\QueueContract;
 use Deploy\Contracts\VcsContract;
+use Deploy\Events\ChangedWorkingDir;
+use Deploy\Events\CommandWasExecuted;
 use Deploy\Project\ProjectConfig;
 use Illuminate\Filesystem\Filesystem;
 use im\Primitive\String\String;
@@ -59,6 +61,20 @@ class Commander {
     protected $dir;
 
     /**
+     * Project Scripts.
+     *
+     * @var \im\Primitive\Container\Container
+     */
+    protected $scripts;
+
+    /**
+     * Project.
+     *
+     * @var \Deploy\Contracts\ProjectContract
+     */
+    protected $project;
+
+    /**
      * Construct.
      *
      * @param \Deploy\Commander\CommandQueue $queue
@@ -78,7 +94,7 @@ class Commander {
 
         $this->dir($this->dir)->actionFromState($this->projectState);
 
-        $this->execute();
+        $this->configureIfNotConfigured()->execute();
     }
 
     protected function execute()
@@ -87,11 +103,27 @@ class Commander {
 
         $this->fireBeforeScripts();
 
-        $output = shell_exec($command());
+        $output = $this->shell($command);
 
         $this->fireAfterScripts();
 
-        event(new CommandWasExecuted($command, string($output)));
+        event(new CommandWasExecuted($command, $output));
+    }
+
+
+    /**
+     * Make configuration file if not exists.
+     *
+     * @return $this
+     */
+    protected function configureIfNotConfigured()
+    {
+        if ( ! $this->config->get('configured'))
+        {
+            $this->setupProject();
+        }
+
+        return $this;
     }
 
     /**
@@ -123,9 +155,21 @@ class Commander {
      */
     public function dir($dir = null)
     {
-        if (is_null($dir)) chdir(base_path());
+        if (is_null($dir))
+        {
+            chdir($dir = base_path());
+
+            return $this;
+        }
+
+        if ( ! $this->filesystem->isDirectory($dir) && $this->projectState->is('clone'))
+        {
+            $dir = pathinfo($dir, PATHINFO_DIRNAME);
+        }
 
         if ($this->filesystem->isDirectory($dir)) chdir($dir);
+
+        event(new ChangedWorkingDir($dir));
 
         return $this;
     }
@@ -150,7 +194,9 @@ class Commander {
      */
     protected function cloneProject()
     {
-        $this->queue->push($this->vcs->_clone());
+        $url = $this->project->getCloneUrl();
+
+        $this->queue->push($this->vcs->_clone($url));
 
         return $this;
     }
@@ -184,6 +230,9 @@ class Commander {
         $this->config = $project->getConfig();
         $this->sequence = $this->getCommandSequence($this->config);
         $this->dir = $this->getWorkingDir($this->config);
+        $this->scripts = $this->getScripts($this->config);
+        $this->project = $project;
+        $this->projectState = $project->getState();
 
         $this->vcs->setVcsPath($this->getVcsPath($this->config));
 
@@ -226,6 +275,17 @@ class Commander {
     }
 
     /**
+     * Get Project Scripts.
+     *
+     * @param \Deploy\Project\ProjectConfig $config
+     * @return \im\Primitive\Container\Container
+     */
+    protected function getScripts(ProjectConfig $config)
+    {
+        return container($this->retrieveConfig($config, 'file.scripts', []));
+    }
+
+    /**
      * Retrieve Config by $key, otherwise return $default.
      *
      * @param \Deploy\Project\ProjectConfig $config
@@ -244,6 +304,98 @@ class Commander {
     }
 
     /**
+     * Fire before scripts.
+     *
+     * @return $this
+     */
+    protected function fireBeforeScripts()
+    {
+        if ($this->scripts->has('before'))
+        {
+            $action = $this->scriptActionFromState($this->projectState);
+
+            $this->fire('before', $action);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Fire after scripts.
+     *
+     * @return $this
+     */
+    protected function fireAfterScripts()
+    {
+        if ($this->scripts->has('after'))
+        {
+            $action = $this->scriptActionFromState($this->projectState);
+
+            $this->fire('after', $action);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Fire commands by sequence and key.
+     *
+     * @param string $sequence
+     * @param string $key
+     * @return $this
+     */
+    protected function fire($sequence, $key)
+    {
+        if ( ! $this->scripts->has($sequence.$key))
+        {
+            return $this;
+        }
+
+        $command = container($this->scripts->get($sequence.$key))->join($this->sequence);
+
+        return $this->shell($command);
+    }
+
+    /**
+     * Get script state from project state.
+     *
+     * @param string $state
+     * @return string
+     */
+    protected function scriptActionFromState($state)
+    {
+        switch($state)
+        {
+            case 'pull':
+            case 'merge':
+            case 'setup':
+                return 'update';
+            case 'clone':
+                return 'clone';
+        }
+    }
+
+    /**
+     * Update Deployer.
+     */
+    public function selfUpdate()
+    {
+        $this->dir()->pullProject()->execute();
+    }
+    /**
+     * Execute shell command.
+     *
+     * @param \im\Primitive\String\String $command
+     * @return \im\Primitive\String\String
+     */
+    protected function shell(String $command)
+    {
+        $output = shell_exec($command());
+
+        return string(($output ? '' : $output));
+    }
+
+    /**
      * Get Vcs Instance.
      *
      * @return VcsContract
@@ -252,7 +404,6 @@ class Commander {
     {
         return $this->vcs;
     }
-
     /**
      * Set Vcs Instance.
      *
@@ -287,22 +438,6 @@ class Commander {
         $this->queue = $queue;
 
         return $this;
-    }
-
-    protected function fireBeforeScripts()
-    {}
-
-    protected function fireAfterScripts()
-    {}
-
-    /**
-     * Update Deployer.
-     */
-    public function selfUpdate()
-    {
-        $this->dir();
-
-        $this->pullProject()->execute();
     }
 
     /**

@@ -1,10 +1,25 @@
 <?php namespace Deploy\Support;
 
+use Deploy\Events\ChangedWorkingDir;
 use Deploy\Events\PayloadWasReceived;
 use Deploy\Events\ProjectWasCreated;
-use Illuminate\Log\Writer;
 
-class Logger extends Writer {
+class Logger {
+
+    /**
+     * Logger.
+     *
+     * @var \Illuminate\Log\Writer
+     */
+    protected $log;
+
+    /**
+     * Construct.
+     */
+    public function __construct()
+    {
+        $this->log = app('log');
+    }
 
     /**
      * Log when payload was received.
@@ -33,6 +48,27 @@ class Logger extends Writer {
     }
 
     /**
+     * Log when working directory is changed.
+     *
+     * @param \Deploy\Events\ChangedWorkingDir $event
+     */
+    public function changedWorkingDir(ChangedWorkingDir $event)
+    {
+        $this->info("Deployer changed working directory to: {$event->dir}");
+    }
+
+    /**
+     * Log info.
+     *
+     * @param string $message
+     * @param array $context
+     */
+    public function info($message, array $context = [])
+    {
+        $this->write('info', $message, $context);
+    }
+
+    /**
      * Dynamically pass log calls into the writer.
      *
      * @param  string  $level
@@ -42,6 +78,6 @@ class Logger extends Writer {
      */
     public function write($level, $message, array $context = [])
     {
-        return $this->log($level, 'Deploy -> '.$message, $context);
+        return $this->log->write($level, 'Deploy -> '.$message, $context);
     }
 }

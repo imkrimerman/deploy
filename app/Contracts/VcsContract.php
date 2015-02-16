@@ -64,4 +64,12 @@ interface VcsContract {
      * @return $this
      */
     public function setVcsPath($vcsPath);
+
+    /**
+     * Clone Project.
+     *
+     * @param string $url
+     * @return string
+     */
+    public function _clone($url);
 }

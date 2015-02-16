@@ -55,4 +55,18 @@ class BitbucketProject extends Project {
                 throw new RuntimeException('Unknown project state.');
         }
     }
+
+    /**
+     * Make project clone url.
+     *
+     * @return string
+     */
+    protected function makeCloneUrl()
+    {
+        $owner = $this->payload->getOwner();
+
+        $slug = $this->payload->getSlug();
+
+        return "git@bitbucket.org:{$owner}/{$slug}.git";
+    }
 }

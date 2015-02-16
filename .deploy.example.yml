@@ -5,11 +5,12 @@ git: git
 sequence: "|"
 mirror: ~/Users/Desktop/Code/project-x
 scripts:
-  after-clone:
-    - composer install
-  after-update:
-    - composer update
-    - npm update
-    - gulp
+  after:
+    clone:
+      - composer install
+    update:
+      - composer update
+      - npm update
+      - gulp
   schedule:
     weekly: php artisan self-update

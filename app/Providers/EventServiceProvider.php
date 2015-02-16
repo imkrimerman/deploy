@@ -1,5 +1,6 @@
 <?php namespace Deploy\Providers;
 
+use Deploy\Events\ChangedWorkingDir;
 use Deploy\Events\PayloadWasReceived;
 use Deploy\Events\ProjectWasCreated;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
@@ -14,11 +15,14 @@ class EventServiceProvider extends ServiceProvider {
 	 */
 	protected $listen = [
 		PayloadWasReceived::class => [
-			'Deploy\Deploy\Deploy@project',
-			'Deploy\Support\Logger@event'
+			'Deploy\Support\Logger@payloadReceived',
+			'Deploy\Deploy\Deploy@project'
 		],
 		ProjectWasCreated::class => [
-			'Deploy\Support\Logger@event'
+			'Deploy\Support\Logger@projectCreated'
+		],
+		ChangedWorkingDir::class => [
+			'Deploy\Support\Logger@changedWorkingDir'
 		]
 	];
 

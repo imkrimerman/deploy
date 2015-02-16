@@ -77,7 +77,7 @@ class ProjectConfig extends Object {
 
         if ($this->repository->has($slug))
         {
-            $config = $this->repository->get($slug);
+            $config = $this->mirrorIfHas($this->repository->get($slug));
         }
         else
         {
@@ -115,9 +115,10 @@ class ProjectConfig extends Object {
     /**
      * @param \Deploy\Contracts\ProjectContract $project
      * @param \im\Primitive\Container\Container $config
+     * @param string $defaultBranch
      * @return string
      */
-    protected function getRemoteApiUrl(ProjectContract $project, Container $config)
+    protected function getRemoteApiUrl(ProjectContract $project, Container $config, $defaultBranch = 'master')
     {
         $payload = $project->getPayload();
         $provider = $project->getProvider();
@@ -127,10 +128,7 @@ class ProjectConfig extends Object {
         $branch = $config->get('file.branch');
         $file = app('configurator')->getFile();
 
-        if (is_null($branch))
-        {
-            throw new InvalidArgumentException('Branch is not specified.');
-        }
+        if (is_null($branch)) $branch = $defaultBranch;
 
         switch ($provider)
         {
@@ -151,6 +149,22 @@ class ProjectConfig extends Object {
     protected function isEqualConfig(Container $latest, Container $config)
     {
         return string($latest->toJson())->base64()->get() === string($config->toJson())->base64()->get();
+    }
+
+    /**
+     * Map working dir to mirrored if exists.
+     *
+     * @param \Deploy\Project\ProjectConfig $config
+     * @return \Deploy\Project\ProjectConfig
+     */
+    protected function mirrorIfHas(ProjectConfig $config)
+    {
+        if ($config->has('file.mirror'))
+        {
+            $config->set('path', $config->get('file.mirror'));
+        }
+
+        return $config;
     }
 
     /**
