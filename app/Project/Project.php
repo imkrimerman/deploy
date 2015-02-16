@@ -20,7 +20,7 @@ abstract class Project implements ProjectContract {
     protected $payload;
 
     /**
-     * Project configuration
+     * Project configuration.
      *
      * @var \Deploy\Project\ProjectConfig
      */
@@ -38,7 +38,7 @@ abstract class Project implements ProjectContract {
      *
      * @var \im\Primitive\String\String
      */
-    protected $state;
+    protected $states;
 
     /**
      * Project exist flag.
@@ -55,31 +55,21 @@ abstract class Project implements ProjectContract {
     protected $cloneUrl;
 
     /**
-     * Construct.
-     *
-     * @param \Deploy\Project\ProjectConfig $config
-     */
-    public function __construct(ProjectConfig $config)
-    {
-        $this->config = $config;
-    }
-
-    /**
-     * Add payload to a Project
+     * Construct Project from Payload Instance.
      *
      * @param \Deploy\Contracts\PayloadContract $payload
-     * @return $this
      */
-    public function registerPayload(PayloadContract $payload)
+    public function __construct(PayloadContract $payload)
     {
         $this->payload = $payload;
 
-        $this->config->configure($this);
+        $this->branches = $this->branchesFromPayload($payload);
 
-        $this->branches = $this->detectBranches();
+        $this->states = $this->statesFromBranches($this->branches);
+
+        $this->config = new ProjectConfig($this);
+
         $this->exists = $this->config->get('exists');
-        $this->state = $this->stateFromBranches($this->branches);
-        $this->cloneUrl = $this->makeCloneUrl();
 
         return $this;
     }
@@ -96,10 +86,13 @@ abstract class Project implements ProjectContract {
 
     /**
      * Return Project configuration.
+     * If $key specified [get] method will retrieve
+     * configuration by $key.
      *
+     * @param mixed|null $key
      * @return \Deploy\Project\ProjectConfig
      */
-    public function getConfig()
+    public function getConfig($key = null)
     {
         return $this->config;
     }
@@ -119,15 +112,15 @@ abstract class Project implements ProjectContract {
      *
      * @return \im\Primitive\String\String
      */
-    public function getState()
+    public function getStates()
     {
-        return $this->state;
+        return $this->states;
     }
 
     /**
      * Return remote provider.
      *
-     * @return string
+     * @return \im\Primitive\String\String
      */
     public function getProvider()
     {
@@ -137,7 +130,7 @@ abstract class Project implements ProjectContract {
     /**
      * Get clone url.
      *
-     * @return string
+     * @return \im\Primitive\String\String
      */
     public function getCloneUrl()
     {
@@ -147,7 +140,7 @@ abstract class Project implements ProjectContract {
     /**
      * Check if project exists in deploy.
      *
-     * @return boolean
+     * @return bool
      */
     public function isExists()
     {
@@ -159,7 +152,7 @@ abstract class Project implements ProjectContract {
      *
      * @return \im\Primitive\Container\Container
      */
-    abstract protected function detectBranches();
+    abstract protected function branchesFromPayload();
 
     /**
      * Set Project pending state from branches.
@@ -167,12 +160,5 @@ abstract class Project implements ProjectContract {
      * @param \im\Primitive\Container\Container $branches
      * @return \im\Primitive\String\String
      */
-    abstract public function stateFromBranches($branches);
-
-    /**
-     * Make project clone url.
-     *
-     * @return string
-     */
-    abstract protected function makeCloneUrl();
+    abstract public function statesFromBranches($branches);
 }

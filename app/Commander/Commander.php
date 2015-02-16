@@ -6,7 +6,6 @@ use Deploy\Contracts\VcsContract;
 use Deploy\Events\ChangedWorkingDir;
 use Deploy\Events\CommandWasExecuted;
 use Deploy\Project\ProjectConfig;
-use Illuminate\Filesystem\Filesystem;
 use im\Primitive\String\String;
 
 class Commander {
@@ -19,18 +18,11 @@ class Commander {
     protected $queue;
 
     /**
-     * Vcs commander.
+     * Vcs.
      *
      * @var \Deploy\Contracts\VcsContract
      */
     protected $vcs;
-
-    /**
-     * Filesystem
-     *
-     * @var \Illuminate\Filesystem\Filesystem
-     */
-    protected $filesystem;
 
     /**
      * Command execution sequence.
@@ -40,28 +32,14 @@ class Commander {
     protected $sequence;
 
     /**
-     * Project Config.
-     *
-     * @var \Deploy\Project\ProjectConfig
-     */
-    protected $config;
-
-    /**
-     * Project state.
-     *
-     * @var \im\Primitive\String\String
-     */
-    protected $projectState;
-
-    /**
      * Project working directory.
      *
      * @var string
      */
-    protected $dir;
+    protected $directory;
 
     /**
-     * Project Scripts.
+     * Project scripts.
      *
      * @var \im\Primitive\Container\Container
      */
@@ -79,25 +57,23 @@ class Commander {
      *
      * @param \Deploy\Commander\CommandQueue $queue
      * @param \Deploy\Contracts\VcsContract $vcs
-     * @param \Illuminate\Filesystem\Filesystem $filesystem
      */
-    public function __construct(CommandQueue $queue, VcsContract $vcs, Filesystem $filesystem)
+    public function __construct(CommandQueue $queue, VcsContract $vcs)
     {
         $this->queue = $queue;
         $this->vcs = $vcs;
-        $this->filesystem = $filesystem;
     }
 
     /**
-     * Init and handle project.
+     * Initialize and handle project.
      *
      * @param \Deploy\Contracts\ProjectContract $project
      */
-    public function handleProject(ProjectContract $project)
+    public function handle(ProjectContract $project)
     {
-        $this->init($project);
+        $this->initialize($project);
 
-        $this->dir($this->dir)->actionFromState($this->projectState);
+        $this->setDirectory($this->directory)->actionFromState($this->project->getStates());
 
         $this->execute();
     }
@@ -107,7 +83,9 @@ class Commander {
      */
     protected function execute()
     {
-        $command = $this->queue->processAll($this->sequence);
+        $sequence = $this->project->getConfig()->get('sequence');
+
+        $command = $this->queue->commands($sequence);
 
         $this->fireBeforeScripts();
 
@@ -146,11 +124,9 @@ class Commander {
         {
             case 'pull':
             case 'merge':
-                return $this->pullProject();
+                return $this->pull_();
             case 'clone':
-                return $this->cloneProject();
-            case 'setup':
-                return $this->setupProject();
+                return $this->clone_();
         }
     }
 
@@ -161,7 +137,7 @@ class Commander {
      * @param null|string $dir
      * @return $this
      */
-    public function dir($dir = null)
+    public function setDirectory($dir = null)
     {
         if (is_null($dir))
         {
@@ -187,7 +163,7 @@ class Commander {
      *
      * @return $this
      */
-    protected function pullProject()
+    protected function pull_()
     {
         $this->queue->push($this->vcs->reset());
         $this->queue->push($this->vcs->pull());
@@ -200,7 +176,7 @@ class Commander {
      *
      * @return $this
      */
-    protected function cloneProject()
+    protected function clone_()
     {
         $url = $this->project->getCloneUrl();
 
@@ -233,14 +209,14 @@ class Commander {
      * @param \Deploy\Contracts\ProjectContract $project
      * @return $this
      */
-    protected function init(ProjectContract $project)
+    protected function initialize(ProjectContract $project)
     {
         $this->config = $project->getConfig();
         $this->sequence = $this->getCommandSequence($this->config);
-        $this->dir = $this->getWorkingDir($this->config);
+        $this->directory = $this->getWorkingDir($this->config);
         $this->scripts = $this->getScripts($this->config);
         $this->project = $project;
-        $this->projectState = $project->getState();
+        $this->projectState = $project->getStates();
 
         $this->vcs->setVcsPath($this->getVcsPath($this->config));
 
@@ -294,7 +270,7 @@ class Commander {
     }
 
     /**
-     * Retrieve Config by $key, otherwise return $default.
+     * Retrieve MainConfig by $key, otherwise return $default.
      *
      * @param \Deploy\Project\ProjectConfig $config
      * @param $key
@@ -387,7 +363,7 @@ class Commander {
      */
     public function selfUpdate()
     {
-        $this->dir()->pullProject()->execute();
+        $this->setDirectory()->pull_()->execute();
     }
     /**
      * Execute shell command.
@@ -453,6 +429,6 @@ class Commander {
      */
     public function __destruct()
     {
-        $this->dir();
+        $this->setDirectory();
     }
 }

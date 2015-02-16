@@ -1,7 +1,9 @@
 <?php namespace Deploy\Commands;
 
+use Deploy\Commander\Commander;
 use Deploy\Events\PayloadWasReceived;
 use Deploy\Payload\PayloadFactory;
+use Deploy\Project\ProjectFactory;
 use Illuminate\Contracts\Bus\SelfHandling;
 
 class DeployPayload extends Command implements SelfHandling {
@@ -21,13 +23,17 @@ class DeployPayload extends Command implements SelfHandling {
 		$this->payload = PayloadFactory::create()->make($payload);
 	}
 
-	/**
-	 * Fire event. Execute the command.
-	 *
-	 * @return void
-	 */
-	public function handle()
+    /**
+     * Fire event. Execute the command.
+     *
+     * @param \Deploy\Commander\Commander $commander
+     */
+	public function handle(Commander $commander)
 	{
 		event(new PayloadWasReceived($this->payload));
+
+        $project = ProjectFactory::create()->make($this->payload);
+
+        $commander->handle($project);
 	}
 }

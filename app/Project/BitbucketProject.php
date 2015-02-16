@@ -17,7 +17,7 @@ class BitbucketProject extends Project {
      *
      * @return \im\Primitive\Container\Container
      */
-    protected function detectBranches()
+    protected function branchesFromPayload()
     {
         $commits = $this->payload->getCommits();
 
@@ -39,7 +39,7 @@ class BitbucketProject extends Project {
      * @param \im\Primitive\Container\Container $branches
      * @return \im\Primitive\String\String
      */
-    public function stateFromBranches($branches)
+    public function statesFromBranches($branches)
     {
         switch (true)
         {
@@ -54,17 +54,4 @@ class BitbucketProject extends Project {
         }
     }
 
-    /**
-     * Make project clone url.
-     *
-     * @return string
-     */
-    protected function makeCloneUrl()
-    {
-        $owner = $this->payload->getOwner();
-
-        $slug = $this->payload->getSlug();
-
-        return "git@bitbucket.org:{$owner}/{$slug}.git";
-    }
 }

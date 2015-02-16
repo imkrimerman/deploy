@@ -26,7 +26,7 @@ interface QueueContract {
      * @param string $sequence
      * @return \im\Primitive\String\String
      */
-    public function processAll($sequence = '|');
+    public function commands($sequence = '|');
 
     /**
      * Prepend command to queue.

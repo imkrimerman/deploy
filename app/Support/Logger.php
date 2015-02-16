@@ -45,7 +45,7 @@ class Logger {
 
         $this->info("Project was successfully created.");
         $this->info("Project provider: {$project->getProvider()}");
-        $this->info("Project pending state: {$project->getState()}");
+        $this->info("Project pending state: {$project->getStates()}");
     }
 
     /**

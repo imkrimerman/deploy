@@ -22,6 +22,6 @@ return [
     |
     */
 
-    'file' => '.deploy.yml'
+    'filename' => '.deploy.yml'
 
 ];

@@ -7,16 +7,19 @@ interface ProjectContract {
     /**
      * Construct.
      *
-     * @param \Deploy\Project\ProjectConfig $repository
+     * @param \Deploy\Contracts\PayloadContract $payload
      */
-    public function __construct(ProjectConfig $repository);
+    public function __construct(PayloadContract $payload);
 
     /**
-     * Return Project configuration.
+     * Return Project configuration instance.
+     * If $key specified [get] method will retrieve
+     * configuration by $key.
      *
+     * @param mixed|null $key
      * @return \Deploy\Project\ProjectConfig
      */
-    public function getConfig();
+    public function getConfig($key = null);
 
     /**
      * Return Project branch.
@@ -30,7 +33,7 @@ interface ProjectContract {
      *
      * @return \im\Primitive\String\String
      */
-    public function getState();
+    public function getStates();
 
     /**
      * Set Project pending state from branches.
@@ -38,7 +41,7 @@ interface ProjectContract {
      * @param \im\Primitive\Container\Container $branches
      * @return \im\Primitive\String\String
      */
-    public function stateFromBranches($branches);
+    public function statesFromBranches($branches);
 
     /**
      * Return payload.

@@ -108,7 +108,7 @@ class CommandQueue implements QueueContract {
      * @param string $sequence
      * @return \im\Primitive\String\String
      */
-    public function processAll($sequence = '|')
+    public function commands($sequence = '|')
     {
         $sequence = string($sequence)->surround(' ');
 
