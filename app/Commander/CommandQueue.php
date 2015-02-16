@@ -1,6 +1,8 @@
 <?php namespace Deploy\Commander;
 
-class CommandQueue {
+use Deploy\Contracts\QueueContract;
+
+class CommandQueue implements QueueContract {
 
     /**
      * Queue.
@@ -18,22 +20,15 @@ class CommandQueue {
     }
 
     /**
-     * Add command to queue. Alias can be specified with second argument.
+     * Add command with alias to queue.
      *
      * @param string $command
-     * @param null|mixed $alias
+     * @param mixed $alias
      * @return $this
      */
-    public function add($command, $alias = null)
+    public function alias($command, $alias)
     {
-        if ( ! is_null($alias))
-        {
-            $this->queue->set($alias, $command);
-        }
-        else
-        {
-            $this->enqueue($command);
-        }
+        $this->queue->set($alias, $command);
 
         return $this;
     }
@@ -59,17 +54,17 @@ class CommandQueue {
      * @param string $command
      * @return $this
      */
-    public function enqueue($command)
+    public function push($command)
     {
         return $this->queue->push($command);
     }
 
     /**
-     * Get first queued command.
+     * Pop first queued command.
      *
      * @return string
      */
-    public function dequeue()
+    public function pop()
     {
         return $this->queue->shift();
     }

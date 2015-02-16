@@ -1,5 +1,8 @@
 <?php namespace Deploy\Project;
 
+use RuntimeException;
+
+
 class BitbucketProject extends Project {
 
     /**
@@ -38,10 +41,18 @@ class BitbucketProject extends Project {
      */
     public function stateFromBranches($branches)
     {
-        if ( ! $this->exists) return 'clone';
-
-        $state = $branches->isEmpty() ? 'merge' : 'pull';
-
-        return string($state);
+        switch (true)
+        {
+            case $this->exists && $this->branches->isEmpty():
+                return string('merge');
+            case $this->exists && ! $this->branches->isEmpty():
+                return string('pull');
+            case $this->exists && ! $this->config->configured:
+                return string('setup');
+            case ! $this->exists:
+                return string('clone');
+            default:
+                throw new RuntimeException('Unknown project state.');
+        }
     }
 }

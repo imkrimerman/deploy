@@ -4,7 +4,7 @@ use Deploy\Commander\Commander;
 use Deploy\Contracts\ProjectContract;
 use Illuminate\Contracts\Bus\SelfHandling;
 
-class DeployProject extends Command implements SelfHandling {
+class DeployNewProject extends Command implements SelfHandling {
 
 	/**
 	 * Project.
@@ -30,6 +30,6 @@ class DeployProject extends Command implements SelfHandling {
 	 */
 	public function handle(Commander $commander)
 	{
-		$commander->handleProject($this->project);
+		$commander->handleNewProject($this->project);
 	}
 }

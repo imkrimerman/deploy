@@ -66,11 +66,12 @@ abstract class Project implements ProjectContract {
     public function registerPayload(PayloadContract $payload)
     {
         $this->payload = $payload;
+
+        $this->config->configure($this);
+
         $this->branches = $this->detectBranches();
         $this->exists = $this->config->get('exists');
         $this->state = $this->stateFromBranches($this->branches);
-
-        $this->config->configure($this);
 
         return $this;
     }

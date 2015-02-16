@@ -11,16 +11,37 @@ class Deploy {
     use DispatchesCommands;
 
     /**
+     * Project.
+     *
+     * @var \Deploy\Contracts\ProjectContract
+     */
+    protected $project;
+
+    /**
      * Dispatch Deploy Command.
      *
      * @param \Deploy\Events\PayloadWasReceived $event
      */
     public function project(PayloadWasReceived $event)
     {
-        $project = ProjectFactory::create()->make($event->payload);
+        $this->project = ProjectFactory::create()->make($event->payload);
 
-        event(new ProjectWasCreated($project));
+        event(new ProjectWasCreated($this->project));
 
-        $this->dispatch(new DeployProject($project));
+        $this->dispatchCommandForProject();
+    }
+
+    protected function dispatchCommandForProject()
+    {
+        if ($this->project->isExists())
+        {
+            $this->dispatch(new DeployProject($this->project));
+        }
+        else
+        {
+            $this->dispatch(new DeployNewProject($this->project));
+        }
+
+        return $this;
     }
 }

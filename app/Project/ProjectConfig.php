@@ -6,6 +6,8 @@ use Guzzle\Http\Client;
 use im\Primitive\Container\Container;
 use im\Primitive\Object\Object;
 use InvalidArgumentException;
+use Symfony\Component\Yaml\Yaml;
+
 
 class ProjectConfig extends Object {
 
@@ -34,9 +36,7 @@ class ProjectConfig extends Object {
      */
     public function configure(ProjectContract $project)
     {
-        $config = $this->getConfig($project);
-
-        $this->initialize($config);
+        $this->initialize($this->getConfig($project));
     }
 
     /**
@@ -49,14 +49,19 @@ class ProjectConfig extends Object {
     {
         $root = $this->repository->getConfigurator()->getDirectory();
 
-        return container([
+        $path = $root.DS.$payload->getSlug();
+
+        $exists = is_dir($path) ? true : false;
+
+        return [
             'file' => [
                 'name' => $payload->getName(),
                 'slug' => $payload->getSlug()
             ],
-            'path' => $root.DS.$payload->getSlug(),
-            'exists' => false
-        ]);
+            'path' => $path,
+            'exists' => $exists,
+            'configured' => false
+        ];
     }
 
     /**
@@ -80,7 +85,7 @@ class ProjectConfig extends Object {
 
         if (is_null($latest) || $this->isEqualConfig($latest, $config))
         {
-            return $config;
+            return $config->set('configured', true);
         }
 
         return $latest;
@@ -148,4 +153,50 @@ class ProjectConfig extends Object {
         return string($latest->toJson())->base64()->get() === string($config->toJson())->base64()->get();
     }
 
+    /**
+     * Convert Configuration to Yaml.
+     *
+     * @param int $options
+     * @return string
+     */
+    public function toYaml($options = 2)
+    {
+        return Yaml::dump($this->value(), $options);
+    }
+
+    /**
+     * Write Configuration to file.
+     *
+     * @param \im\Primitive\Support\Contracts\StringContract|string $path
+     * @param int $options
+     * @return bool
+     */
+    public function toFile($path, $options = 2)
+    {
+        if (is_dir(pathinfo($path, PATHINFO_DIRNAME)))
+        {
+            return (bool) file_put_contents($path, $this->toYaml($options));
+        }
+
+        return false;
+    }
+
+    /**
+     * Get Configuration properties.
+     *
+     * @return array
+     */
+    public function value()
+    {
+        $hidden = ['repository'];
+
+        $vars = parent::value();
+
+        foreach ($vars as $property => $value)
+        {
+            if (in_array($property, $hidden)) unset($vars[$property]);
+        }
+
+        return $vars;
+    }
 }

@@ -1,7 +1,9 @@
 <?php namespace Deploy\Commander;
 
 use Deploy\Contracts\ProjectContract;
+use Deploy\Contracts\QueueContract;
 use Deploy\Contracts\VcsContract;
+use Deploy\Project\ProjectConfig;
 use Illuminate\Filesystem\Filesystem;
 use im\Primitive\String\String;
 
@@ -72,27 +74,12 @@ class Commander {
         $this->sequence = '|';
     }
 
-    public function handle(ProjectContract $project)
+    public function handleProject(ProjectContract $project)
     {
-        if ($project->isExists())
-        {
-            return $this->handleProject($project);
-        }
 
-        return $this->handleNewProject($project);
     }
 
-    protected function handleProject(ProjectContract $project)
-    {
-        $this->setConfig($project);
-        $this->setProjectState($project);
-        $this->setCommandSequence();
-        $this->setWorkingDir();
-
-        $this->dir($this->dir)->actionFromState()->execute();
-    }
-
-    protected function handleNewProject(ProjectContract $project)
+    public function handleNewProject(ProjectContract $project)
     {
 
     }
@@ -101,20 +88,26 @@ class Commander {
     {
         $command = $this->queue->processAll($this->sequence);
 
-        if ($this->config->has('file.scripts'))
-
         $output = shell_exec($command());
     }
 
-    protected function actionFromState()
+    /**
+     * Prepare actions from state.
+     *
+     * @param \im\Primitive\String\String $state
+     * @return \Deploy\Commander\Commander
+     */
+    protected function actionFromState(String $state)
     {
-        switch ($this->projectState->get())
+        switch ($state())
         {
             case 'pull':
             case 'merge':
                 return $this->pullProject();
             case 'clone':
                 return $this->cloneProject();
+            case 'setup':
+                return $this->setupProject();
         }
     }
 
@@ -134,19 +127,81 @@ class Commander {
         return $this;
     }
 
+    /**
+     * Pull Project changes.
+     *
+     * @return $this
+     */
     protected function pullProject()
     {
-        $this->queue->enqueue($this->vcs->reset());
-        $this->queue->enqueue($this->vcs->pull());
+        $this->queue->push($this->vcs->reset());
+        $this->queue->push($this->vcs->pull());
 
         return $this;
     }
 
+    /**
+     * Clone Project.
+     *
+     * @return $this
+     */
     protected function cloneProject()
     {
-        $this->queue->enqueue($this->vcs->clone());
+        $this->queue->push($this->vcs->clone());
 
         return $this;
+    }
+
+    /**
+     * Setup and push Project configuration if it has no config file.
+     *
+     * @return $this
+     */
+    protected function setupProject()
+    {
+        $path = $this->config->path.DS.app('configurator')->getFile();
+
+        if ( ! is_file($path) && $this->config->toFile($path))
+        {
+            $this->queue->push($this->vcs->commit('Added deployment configuration.'));
+            $this->queue->push($this->vcs->push());
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Get Project working directory.
+     *
+     * @param \Deploy\Project\ProjectConfig $config
+     * @return mixed
+     */
+    protected function getWorkingDir(ProjectConfig $config)
+    {
+        if ($config->has('file.mirror'))
+        {
+            return $config->get('file.mirror');
+        }
+
+        return $config->get('path');
+    }
+
+    /**
+     * Get Project command sequence.
+     *
+     * @param \Deploy\Project\ProjectConfig $config
+     * @param string $default
+     * @return $this
+     */
+    protected function getCommandSequence(ProjectConfig $config, $default = '|')
+    {
+        if ($config->has('file.sequence'))
+        {
+            return $config->get('file.sequence');
+        }
+
+        return $default;
     }
 
     /**
@@ -181,69 +236,16 @@ class Commander {
 
         return $this;
     }
-
     /**
      * Set Queue Instance.
      *
-     * @param CommandQueue $queue
+     * @param \Deploy\Contracts\QueueContract $queue
      * @return $this
      */
-    public function setQueue($queue)
+    public function setQueue(QueueContract $queue)
     {
         $this->queue = $queue;
 
         return $this;
     }
-
-    /**
-     * Set Project Config.
-     *
-     * @param \Deploy\Contracts\ProjectContract $project
-     * @return $this
-     */
-    protected function setConfig(ProjectContract $project)
-    {
-        $this->config = $project->getConfig();
-
-        return $this;
-    }
-
-    /**
-     * Set Project state.
-     *
-     * @param \Deploy\Contracts\ProjectContract $project
-     * @return $this
-     */
-    protected function setProjectState(ProjectContract $project)
-    {
-        $this->projectState = $project->getState();
-
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function setWorkingDir()
-    {
-        if ($this->config->has('file.mirror'))
-        {
-            $this->dir = $this->config->get('file.mirror');
-        }
-        else
-        {
-            $this->dir = $this->config->get('path');
-        }
-    }
-
-    protected function setCommandSequence()
-    {
-        if ($this->config->has('file.sequence'))
-        {
-            $this->sequence = $this->config->get('file.sequence');
-        }
-
-        return $this;
-    }
-
 }
