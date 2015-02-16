@@ -34,9 +34,9 @@ class ProjectConfig extends Object {
      */
     public function configure(ProjectContract $project)
     {
-        $project = $project->getPayload()->getSlug();
+        $config = $this->getConfig($project);
 
-        return $this->getConfig($project);
+        $this->initialize($config);
     }
 
     /**
@@ -122,7 +122,10 @@ class ProjectConfig extends Object {
         $branch = $config->get('branch');
         $file = app('configurator')->getFile();
 
-        if (is_null($branch)) throw new InvalidArgumentException('Branch is not specified.');
+        if (is_null($branch))
+        {
+            throw new InvalidArgumentException('Branch is not specified.');
+        }
 
         switch ($provider)
         {

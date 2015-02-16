@@ -38,6 +38,8 @@ class BitbucketProject extends Project {
      */
     public function stateFromBranches($branches)
     {
+        if ( ! $this->exists) return 'clone';
+
         $state = $branches->isEmpty() ? 'merge' : 'pull';
 
         return string($state);

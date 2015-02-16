@@ -88,7 +88,7 @@ class ProjectRepository implements RepositoryContract{
 
             $file = string($path)->contents()->value();
 
-            $parsed = $this->yaml->parse($file);
+            $parsed = $this->parseConfig($file);
 
             $projects[$parsed['slug']] = [
                 'file' => $parsed,
@@ -117,16 +117,6 @@ class ProjectRepository implements RepositoryContract{
     }
 
     /**
-     * Return Configurator.
-     *
-     * @return Configurator
-     */
-    public function getConfigurator()
-    {
-        return $this->config;
-    }
-
-    /**
      * Return parsed Yaml configuration.
      *
      * @param string $yamlConfig
@@ -135,5 +125,15 @@ class ProjectRepository implements RepositoryContract{
     public function parseConfig($yamlConfig)
     {
         return $this->yaml->parse($yamlConfig);
+    }
+
+    /**
+     * Return Configurator.
+     *
+     * @return Configurator
+     */
+    public function getConfigurator()
+    {
+        return $this->config;
     }
 }

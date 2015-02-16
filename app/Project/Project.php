@@ -15,7 +15,7 @@ abstract class Project implements ProjectContract {
     /**
      * Received payload.
      *
-     * @var \Deploy\Payload\PayloadContract
+     * @var \Deploy\Contracts\PayloadContract
      */
     protected $payload;
 
@@ -36,7 +36,7 @@ abstract class Project implements ProjectContract {
     /**
      * Project pending state.
      *
-     * @var string
+     * @var \im\Primitive\String\String
      */
     protected $state;
 
@@ -45,7 +45,7 @@ abstract class Project implements ProjectContract {
      *
      * @var bool
      */
-    public $exists;
+    protected $exists;
 
     /**
      * Construct.
@@ -67,8 +67,8 @@ abstract class Project implements ProjectContract {
     {
         $this->payload = $payload;
         $this->branches = $this->detectBranches();
-        $this->state = $this->stateFromBranches($this->branches);
         $this->exists = $this->config->get('exists');
+        $this->state = $this->stateFromBranches($this->branches);
 
         $this->config->configure($this);
 
@@ -78,7 +78,7 @@ abstract class Project implements ProjectContract {
     /**
      * Get payload.
      *
-     * @return \Deploy\Payload\PayloadContract
+     * @return \Deploy\Contracts\PayloadContract
      */
     public function getPayload()
     {
@@ -108,7 +108,7 @@ abstract class Project implements ProjectContract {
     /**
      * Return Project pending state.
      *
-     * @return string
+     * @return \im\Primitive\String\String
      */
     public function getState()
     {
@@ -123,6 +123,16 @@ abstract class Project implements ProjectContract {
     public function getProvider()
     {
         return $this->provider;
+    }
+
+    /**
+     * Check if project exists in deploy.
+     *
+     * @return boolean
+     */
+    public function isExists()
+    {
+        return $this->exists;
     }
 
     /**

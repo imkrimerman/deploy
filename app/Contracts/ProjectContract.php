@@ -14,21 +14,21 @@ interface ProjectContract {
     /**
      * Return Project configuration.
      *
-     * @return \im\Primitive\Container\Container
+     * @return \Deploy\Project\ProjectConfig
      */
     public function getConfig();
 
     /**
      * Return Project branch.
      *
-     * @return string
+     * @return \im\Primitive\Container\Container
      */
     public function getBranches();
 
     /**
      * Return Project pending state.
      *
-     * @return string
+     * @return \im\Primitive\String\String
      */
     public function getState();
 
@@ -53,4 +53,11 @@ interface ProjectContract {
      * @return string
      */
     public function getProvider();
+
+    /**
+     * Check if project exists in deploy.
+     *
+     * @return boolean
+     */
+    public function isExists();
 }
