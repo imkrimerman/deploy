@@ -1,9 +1,6 @@
 <?php namespace Deploy\Contracts;
 
-use Deploy\Vcs\Git;
-
-
-interface VcsContract {
+interface VcsContract extends Contract {
 
     /**
      * Construct.

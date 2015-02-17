@@ -1,7 +1,11 @@
 <?php namespace Deploy\Project;
 
+use Deploy\Config\ProjectConfig;
+use Deploy\Config\ProjectConfigFactory;
 use Deploy\Contracts\PayloadContract;
 use Deploy\Contracts\ProjectContract;
+use RuntimeException;
+
 
 abstract class Project implements ProjectContract {
 
@@ -27,18 +31,18 @@ abstract class Project implements ProjectContract {
     protected $config;
 
     /**
-     * Project branches.
+     * Project branch.
      *
      * @var \im\Primitive\Container\Container
      */
-    protected $branches;
+    protected $branch;
 
     /**
      * Project pending state.
      *
      * @var \im\Primitive\String\String
      */
-    protected $states;
+    protected $state;
 
     /**
      * Project exist flag.
@@ -48,30 +52,42 @@ abstract class Project implements ProjectContract {
     protected $exists;
 
     /**
-     * Project clone url
-     *
-     * @var string
-     */
-    protected $cloneUrl;
-
-    /**
      * Construct Project from Payload Instance.
      *
      * @param \Deploy\Contracts\PayloadContract $payload
+     * @param \Deploy\Config\ProjectConfigFactory $factory
+     * @throws \Deploy\Config\UnexpectedValueException
      */
-    public function __construct(PayloadContract $payload)
+    public function __construct(PayloadContract $payload, ProjectConfigFactory $factory)
     {
         $this->payload = $payload;
 
-        $this->branches = $this->branchesFromPayload($payload);
+        $this->config = $factory->make($this);
 
-        $this->states = $this->statesFromBranches($this->branches);
+        $this->cloneTemporary();
 
-        $this->config = new ProjectConfig($this);
-
-        $this->exists = $this->config->get('exists');
+        event(new ProjectWasCreated($this));
 
         return $this;
+    }
+
+    /**
+     * Clone Project to temporary storage.
+     */
+    protected function cloneTemporary()
+    {
+        if ( ! $this->config->has('clone.storage'))
+        {
+            throw new RuntimeException('Clone storage not configured.');
+        }
+
+        $current = getcwd();
+
+        chdir($this->getConfig('clone.storage'));
+
+        shell_exec("git clone {$this->getConfig('clone.url')}");
+
+        chdir($current);
     }
 
     /**
@@ -94,6 +110,11 @@ abstract class Project implements ProjectContract {
      */
     public function getConfig($key = null)
     {
+        if ( ! is_null($key))
+        {
+            return $this->config->get($key);
+        }
+
         return $this->config;
     }
 
@@ -146,7 +167,6 @@ abstract class Project implements ProjectContract {
     {
         return $this->exists;
     }
-
     /**
      * Detect Project branches.
      *
@@ -160,5 +180,6 @@ abstract class Project implements ProjectContract {
      * @param \im\Primitive\Container\Container $branches
      * @return \im\Primitive\String\String
      */
-    abstract public function statesFromBranches($branches);
+    abstract public function statesFromCommits($branches);
+
 }

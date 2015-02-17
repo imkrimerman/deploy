@@ -1,7 +1,8 @@
 <?php namespace Deploy\Payload;
 
+use Deploy\Contracts\FactoryContract;
 
-class PayloadFactory {
+class PayloadFactory implements FactoryContract {
 
     /**
      * Make new Payload instance depending on payload.

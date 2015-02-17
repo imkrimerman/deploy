@@ -21,18 +21,19 @@ class DeployPayload extends Command implements SelfHandling {
 	public function __construct($payload)
 	{
 		$this->payload = PayloadFactory::create()->make($payload);
+
+        event(new PayloadWasReceived($this->payload));
 	}
 
     /**
      * Fire event. Execute the command.
      *
      * @param \Deploy\Commander\Commander $commander
+     * @param \Deploy\Project\ProjectFactory $factory
      */
-	public function handle(Commander $commander)
+	public function handle(Commander $commander, ProjectFactory $factory)
 	{
-		event(new PayloadWasReceived($this->payload));
-
-        $project = ProjectFactory::create()->make($this->payload);
+        $project = $factory->make($this->payload);
 
         $commander->handle($project);
 	}

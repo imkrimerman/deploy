@@ -1,15 +1,17 @@
 <?php namespace Deploy\Contracts;
 
+use Deploy\Config\ProjectConfigFactory;
 use Deploy\Project\ProjectConfig;
 
-interface ProjectContract {
+interface ProjectContract extends Contract {
 
     /**
      * Construct.
      *
      * @param \Deploy\Contracts\PayloadContract $payload
+     * @param \Deploy\Config\ProjectConfigFactory $factory
      */
-    public function __construct(PayloadContract $payload);
+    public function __construct(PayloadContract $payload, ProjectConfigFactory $factory);
 
     /**
      * Return Project configuration instance.
@@ -41,7 +43,7 @@ interface ProjectContract {
      * @param \im\Primitive\Container\Container $branches
      * @return \im\Primitive\String\String
      */
-    public function statesFromBranches($branches);
+    public function statesFromCommits($branches);
 
     /**
      * Return payload.

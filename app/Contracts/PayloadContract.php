@@ -1,8 +1,6 @@
 <?php namespace Deploy\Contracts;
 
-use im\Primitive\Support\Contracts\ContainerContract;
-
-interface PayloadContract extends ContainerContract {
+interface PayloadContract extends Contract {
 
     /**
      * Get project name.

@@ -1,20 +1,13 @@
 <?php namespace Deploy\Config;
 
 use Deploy\Contracts\PayloadContract;
-use InvalidArgumentException;
 use Guzzle\Http\Client;
+use im\Primitive\String\String;
 use Symfony\Component\Yaml\Yaml;
 use im\Primitive\Container\Container;
 use Deploy\Contracts\ProjectContract;
 
-class ProjectConfig extends MainConfig {
-
-    /**
-     * Hidden properties.
-     *
-     * @var array
-     */
-    protected $hidden;
+abstract class ProjectConfig extends Container {
 
     /**
      * Make Project configuration.
@@ -23,81 +16,20 @@ class ProjectConfig extends MainConfig {
      */
     public function __construct(ProjectContract $project)
     {
-        parent::__construct(app('config'));
+        $this->initialize([]);
 
-        $this->forProject($project);
-    }
+        $repository = app('config');
 
-    /**
-     * Get latest configuration.
-     *
-     * @param \Deploy\Contracts\ProjectContract $project
-     * @return \im\Primitive\Container\Container
-     */
-    protected function forProject(ProjectContract $project)
-    {
+        foreach ($this->getConfigKeys() as $key)
+        {
+            $this->set($key, string($repository->get($key)));
+        }
+
         $this->set(
-            'cloneUrl', $this->makeCloneUrl($project->getPayload(), $project->getProvider())
+            'clone.url', $this->makeCloneUrl($project->getPayload(), $project->getProvider())
         );
 
-        $latest = $this->getRemoteConfig($project);
-    }
-
-    /**
-     * Get remote configuration file.
-     *
-     * @param \Deploy\Contracts\ProjectContract $project
-     * @return \im\Primitive\Container\Container
-     */
-    protected function getRemoteConfig(ProjectContract $project)
-    {
-        foreach ($project->getBranches() as $branch)
-        {
-            $api = $this->makeRemoteApiUrl(
-                $project->getPayload(), $project->getProvider(), $branch
-            );
-
-            $response = (new Client())->get($api)->getResponse();
-        }
-    }
-
-    /**
-     * @param \Deploy\Contracts\PayloadContract $payload
-     * @param string $provider
-     * @param string $branch
-     * @return string
-     */
-    protected function makeRemoteApiUrl(PayloadContract $payload, $provider, $branch)
-    {
-        $owner = $payload->getOwner();
-        $slug = $payload->getSlug();
-
-        switch ($provider)
-        {
-            case 'bitbucket':
-                return "https://bitbucket.org/api/1.0/repositories/{$owner}/{$slug}/raw/{$branch}/{$this->filename}";
-            default:
-                throw new InvalidArgumentException('Provider: '.$provider.' is not defined or not resolved.');
-        }
-    }
-
-    /**
-     * @param \Deploy\Contracts\PayloadContract $payload
-     * @param $provider
-     * @return \im\Primitive\String\String
-     */
-    protected function makeCloneUrl(PayloadContract $payload, $provider)
-    {
-        $owner = $payload->getOwner();
-        $slug = $payload->getSlug();
-
-        switch ($provider)
-        {
-            case 'bitbucket':
-                return string("git@bitbucket.org:{$owner}/{$slug}.git");
-            default:
-                throw new InvalidArgumentException('Provider: ' . $provider . ' is not defined or not resolved.');
-        }
+        $this->handleStorage();
     }
 
     /**
@@ -117,47 +49,77 @@ class ProjectConfig extends MainConfig {
     }
 
     /**
-     * Convert Configuration to Yaml.
+     * Parse Yaml file.
      *
-     * @param int $options
-     * @return string
+     * @param string $yaml
+     * @return array
      */
-    public function toYaml($options = 2)
+    public function parseYaml($yaml)
     {
-        return Yaml::dump($this->value(), $options);
+        return Yaml::parse($yaml);
     }
 
     /**
-     * Write Configuration to file.
+     * Append configuration from yaml.
      *
-     * @param \im\Primitive\Support\Contracts\StringContract|string $path
-     * @param int $options
-     * @return bool
+     * @param string $yaml
+     * @return $this
      */
-    public function toFile($path, $options = 2)
+    public function appendFromYaml($yaml)
     {
-        if (is_dir(pathinfo($path, PATHINFO_DIRNAME)))
+        foreach ($this->parseYaml($yaml) as $key => $value)
         {
-            return (bool) file_put_contents($path, $this->toYaml($options));
+            $this->set($key, $value);
         }
 
-        return false;
+        return $this;
     }
 
     /**
-     * Get Configuration properties.
+     * Get configuration keys.
      *
      * @return array
      */
-    public function value()
+    public function getConfigKeys()
     {
-        $properties = parent::value();
+        return [
+            'deploy.directory',
+            'deploy.filename',
+            'deploy.storage'
+        ];
+    }
 
-        foreach ($properties as $key => $value)
+    /**
+     * Handle temporary storage directory.
+     *
+     * @return $this
+     */
+    protected function handleStorage()
+    {
+        $storage = $this->get('deploy.storage');
+
+        if ( ! is_dir($storage))
         {
-            $properties[$key] = $this->getSearchable($value);
+            mkdir($storage);
         }
 
-        return $properties;
+        $uuid = uuid();
+
+        $this->set('clone.uuid', $uuid);
+
+        mkdir($storage.DS.$uuid);
+
+        $this->set('clone.storage', $storage.DS.$uuid);
+
+        return $this;
     }
+
+    /**
+     * Make url to clone project.
+     *
+     * @param \Deploy\Contracts\PayloadContract $payload
+     * @param string $provider
+     * @return \im\Primitive\String\String
+     */
+    abstract protected function makeCloneUrl(PayloadContract $payload, $provider);
 }

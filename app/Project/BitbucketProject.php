@@ -34,16 +34,24 @@ class BitbucketProject extends Project {
     }
 
     /**
-     * Set Project pending state from branches.
+     * Set Project branches pending state.
      *
-     * @param \im\Primitive\Container\Container $branches
+     * @param \im\Primitive\Container\Container $commits
      * @return \im\Primitive\String\String
      */
-    public function statesFromBranches($branches)
+    public function statesFromCommits($commits)
+    {
+        foreach ($commits as $commit)
+        {
+
+        }
+    }
+
+    public function getState($commit)
     {
         switch (true)
         {
-            case $this->exists && $this->branches->isEmpty():
+            case $this->exists:
                 return string('merge');
             case $this->exists && ! $this->branches->isEmpty():
                 return string('pull');

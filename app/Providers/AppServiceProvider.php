@@ -27,7 +27,5 @@ class AppServiceProvider extends ServiceProvider {
 	{
 		$this->app->bind('Illuminate\Contracts\Auth\Registrar', 'Deploy\Services\Registrar');
 		$this->app->bind('Deploy\Contracts\VcsContract', 'Deploy\Vcs\Git');
-		$this->app->bind('project.bitbucket', 'Deploy\Project\BitbucketProject');
-		$this->app->bind('project.github', 'Deploy\Project\GithubProject');
 	}
 }

@@ -22,6 +22,17 @@ return [
     |
     */
 
-    'filename' => '.deploy.yml'
+    'filename' => '.deploy.yml',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Deploy Temporary Storage
+    |--------------------------------------------------------------------------
+    |
+    | Specify what will be the deployment temporary storage.
+    |
+    */
+
+    'storage' => realpath(storage_path().'/deploy')
 
 ];

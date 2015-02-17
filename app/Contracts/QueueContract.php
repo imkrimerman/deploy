@@ -3,7 +3,7 @@
 use Deploy\Commander\CommandQueue;
 
 
-interface QueueContract {
+interface QueueContract extends Contract {
 
     /**
      * Push command to a Queue.

@@ -25,7 +25,7 @@ class GithubProject extends Project {
      * @param \im\Primitive\Container\Container $branches
      * @return \im\Primitive\String\String
      */
-    public function statesFromBranches($branches)
+    public function statesFromCommits($branches)
     {
         // TODO: Implement stateFromBranches() method.
     }
