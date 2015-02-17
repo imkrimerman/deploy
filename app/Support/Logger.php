@@ -3,7 +3,9 @@
 use Deploy\Events\ChangedWorkingDir;
 use Deploy\Events\CommandWasExecuted;
 use Deploy\Events\PayloadWasReceived;
+use Deploy\Events\ProjectWasCloned;
 use Deploy\Events\ProjectWasCreated;
+use Deploy\Events\ProjectWasNotCloned;
 
 class Logger {
 
@@ -45,7 +47,7 @@ class Logger {
 
         $this->info("Project was successfully created.");
         $this->info("Project provider: {$project->getProvider()}");
-        $this->info("Project pending state: {$project->getStates()}");
+        $this->info("Project pending state: {$project->getState()}");
     }
 
     /**
@@ -70,6 +72,26 @@ class Logger {
     }
 
     /**
+     * Log when project was successfully cloned.
+     *
+     * @param \Deploy\Events\ProjectWasCloned $event
+     */
+    public function projectWasCloned(ProjectWasCloned $event)
+    {
+        $this->info("Project was successfully cloned to temporary storage.");
+    }
+
+    /**
+     * Log when project clone failed.
+     *
+     * @param \Deploy\Events\ProjectWasNotCloned $event
+     */
+    public function projectWasNotCloned(ProjectWasNotCloned $event)
+    {
+        $this->error("Project was NOT cloned. Something went wrong!");
+    }
+
+    /**
      * Log info.
      *
      * @param string $message
@@ -78,6 +100,17 @@ class Logger {
     public function info($message, array $context = [])
     {
         $this->write('info', $message, $context);
+    }
+
+    /**
+     * Log error.
+     *
+     * @param string $message
+     * @param array $context
+     */
+    public function error($message, array $context = [])
+    {
+        $this->write('error', $message, $context);
     }
 
     /**

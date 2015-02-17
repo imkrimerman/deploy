@@ -1,13 +1,15 @@
 <?php namespace Deploy\Config;
 
 use Deploy\Contracts\PayloadContract;
+use Deploy\Contracts\ProjectConfigContract;
+use Deploy\Events\ProjectWasPreconfigured;
 use Guzzle\Http\Client;
 use im\Primitive\String\String;
 use Symfony\Component\Yaml\Yaml;
 use im\Primitive\Container\Container;
 use Deploy\Contracts\ProjectContract;
 
-abstract class ProjectConfig extends Container {
+abstract class ProjectConfig extends Container implements ProjectConfigContract {
 
     /**
      * Make Project configuration.
@@ -25,38 +27,36 @@ abstract class ProjectConfig extends Container {
             $this->set($key, string($repository->get($key)));
         }
 
+        $this->set('name', $project->getPayload()->getName());
+        $this->set('slug', $project->getPayload()->getSlug());
         $this->set(
-            'clone.url', $this->makeCloneUrl($project->getPayload(), $project->getProvider())
+            'clone.url', $this->getCloneUrl($project->getPayload(), $project->getProvider())
         );
 
         $this->handleStorage();
+
+        event(new ProjectWasPreconfigured($this));
+
+        $this->update();
     }
 
     /**
-     * Map working dir to mirrored if exists.
+     * Update from deploy config file if exists.
      *
-     * @param \im\Primitive\Container\Container $config
-     * @return \Deploy\Project\ProjectConfig
+     * @return $this
+     * @throws \im\Primitive\String\Exceptions\StringException
      */
-    protected function mirrorIfHas(Container $config)
+    public function update()
     {
-        if ($config->has('mirror'))
+        $file = $this->get('clone.storage').DS. $this->get('slug').DS.$this->get('deploy.filename');
+
+        if (is_file($file) && is_readable($file))
         {
-            $config->set('path', $config->get('mirror'));
+            $this->appendFromYaml(string($file)->contents())
+                 ->mirrorIfHas();
         }
 
-        return $config;
-    }
-
-    /**
-     * Parse Yaml file.
-     *
-     * @param string $yaml
-     * @return array
-     */
-    public function parseYaml($yaml)
-    {
-        return Yaml::parse($yaml);
+        return $this;
     }
 
     /**
@@ -73,6 +73,32 @@ abstract class ProjectConfig extends Container {
         }
 
         return $this;
+    }
+
+    /**
+     * Map working dir to mirrored if exists.
+     *
+     * @return $this
+     */
+    protected function mirrorIfHas()
+    {
+        if ($this->has('mirror'))
+        {
+            $this->set('path', $this->get('mirror'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Parse Yaml file.
+     *
+     * @param string $yaml
+     * @return array
+     */
+    public function parseYaml($yaml)
+    {
+        return Yaml::parse($yaml);
     }
 
     /**
@@ -96,7 +122,7 @@ abstract class ProjectConfig extends Container {
      */
     protected function handleStorage()
     {
-        $storage = $this->get('deploy.storage');
+        $storage = $this->get('deploy.storage')->value();
 
         if ( ! is_dir($storage))
         {
@@ -106,8 +132,6 @@ abstract class ProjectConfig extends Container {
         $uuid = uuid();
 
         $this->set('clone.uuid', $uuid);
-
-        mkdir($storage.DS.$uuid);
 
         $this->set('clone.storage', $storage.DS.$uuid);
 
@@ -121,5 +145,5 @@ abstract class ProjectConfig extends Container {
      * @param string $provider
      * @return \im\Primitive\String\String
      */
-    abstract protected function makeCloneUrl(PayloadContract $payload, $provider);
+    abstract public function getCloneUrl(PayloadContract $payload, $provider);
 }

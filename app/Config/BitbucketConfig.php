@@ -11,7 +11,7 @@ class BitbucketConfig extends ProjectConfig {
      * @param string $provider
      * @return \im\Primitive\String\String
      */
-    protected function makeCloneUrl(PayloadContract $payload, $provider)
+    public function getCloneUrl(PayloadContract $payload, $provider)
     {
         $owner = $payload->getOwner();
         $slug = $payload->getSlug();

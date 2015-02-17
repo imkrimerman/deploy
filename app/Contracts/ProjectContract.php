@@ -28,22 +28,22 @@ interface ProjectContract extends Contract {
      *
      * @return \im\Primitive\Container\Container
      */
-    public function getBranches();
+    public function getBranch();
 
     /**
      * Return Project pending state.
      *
      * @return \im\Primitive\String\String
      */
-    public function getStates();
+    public function getState();
 
     /**
-     * Set Project pending state from branches.
+     * Set Project pending state from commits.
      *
-     * @param \im\Primitive\Container\Container $branches
+     * @param \im\Primitive\Container\Container $commits
      * @return \im\Primitive\String\String
      */
-    public function statesFromCommits($branches);
+    public function stateFromCommits($commits);
 
     /**
      * Return payload.
@@ -64,12 +64,5 @@ interface ProjectContract extends Contract {
      *
      * @return boolean
      */
-    public function isExists();
-
-    /**
-     * Get clone url.
-     *
-     * @return string
-     */
-    public function getCloneUrl();
+    public function exists();
 }

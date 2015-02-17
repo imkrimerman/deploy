@@ -11,7 +11,7 @@ return [
     |
     */
 
-    'directory' => realpath(base_path().'/../'),
+    'directory' => realpath(base_path('../')),
 
     /*
     |--------------------------------------------------------------------------
@@ -33,6 +33,6 @@ return [
     |
     */
 
-    'storage' => realpath(storage_path().'/deploy')
+    'storage' => storage_path('deploy')
 
 ];

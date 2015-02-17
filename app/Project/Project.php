@@ -4,6 +4,8 @@ use Deploy\Config\ProjectConfig;
 use Deploy\Config\ProjectConfigFactory;
 use Deploy\Contracts\PayloadContract;
 use Deploy\Contracts\ProjectContract;
+use Deploy\Events\ProjectWasCreated;
+use Illuminate\Filesystem\Filesystem;
 use RuntimeException;
 
 
@@ -64,30 +66,9 @@ abstract class Project implements ProjectContract {
 
         $this->config = $factory->make($this);
 
-        $this->cloneTemporary();
-
         event(new ProjectWasCreated($this));
 
         return $this;
-    }
-
-    /**
-     * Clone Project to temporary storage.
-     */
-    protected function cloneTemporary()
-    {
-        if ( ! $this->config->has('clone.storage'))
-        {
-            throw new RuntimeException('Clone storage not configured.');
-        }
-
-        $current = getcwd();
-
-        chdir($this->getConfig('clone.storage'));
-
-        shell_exec("git clone {$this->getConfig('clone.url')}");
-
-        chdir($current);
     }
 
     /**
@@ -123,9 +104,9 @@ abstract class Project implements ProjectContract {
      *
      * @return \im\Primitive\Container\Container
      */
-    public function getBranches()
+    public function getBranch()
     {
-        return $this->branches;
+        return $this->branch;
     }
 
     /**
@@ -133,9 +114,9 @@ abstract class Project implements ProjectContract {
      *
      * @return \im\Primitive\String\String
      */
-    public function getStates()
+    public function getState()
     {
-        return $this->states;
+        return $this->state;
     }
 
     /**
@@ -149,30 +130,21 @@ abstract class Project implements ProjectContract {
     }
 
     /**
-     * Get clone url.
-     *
-     * @return \im\Primitive\String\String
-     */
-    public function getCloneUrl()
-    {
-        return $this->cloneUrl;
-    }
-
-    /**
      * Check if project exists in deploy.
      *
      * @return bool
      */
-    public function isExists()
+    public function exists()
     {
         return $this->exists;
     }
+
     /**
      * Detect Project branches.
      *
      * @return \im\Primitive\Container\Container
      */
-    abstract protected function branchesFromPayload();
+    abstract protected function branchFromPayload();
 
     /**
      * Set Project pending state from branches.
@@ -180,6 +152,14 @@ abstract class Project implements ProjectContract {
      * @param \im\Primitive\Container\Container $branches
      * @return \im\Primitive\String\String
      */
-    abstract public function statesFromCommits($branches);
+    abstract public function stateFromCommits($branches);
 
+    /**
+     * Destruct.
+     * Delete temporary created project clone.
+     */
+    public function __destruct()
+    {
+        (new Filesystem)->deleteDirectory($this->getConfig('clone.storage'));
+    }
 }

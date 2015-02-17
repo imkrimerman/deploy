@@ -3,7 +3,10 @@
 use Deploy\Events\ChangedWorkingDir;
 use Deploy\Events\CommandWasExecuted;
 use Deploy\Events\PayloadWasReceived;
+use Deploy\Events\ProjectWasCloned;
 use Deploy\Events\ProjectWasCreated;
+use Deploy\Events\ProjectWasNotCloned;
+use Deploy\Events\ProjectWasPreconfigured;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -21,6 +24,15 @@ class EventServiceProvider extends ServiceProvider {
 		ProjectWasCreated::class => [
 			'Deploy\Support\Logger@projectCreated'
 		],
+        ProjectWasPreconfigured::class => [
+            'Deploy\Project\ProjectClone@process'
+        ],
+        ProjectWasCloned::class => [
+            'Deploy\Support\Logger@projectWasCloned'
+        ],
+        ProjectWasNotCloned::class => [
+            'Deploy\Support\Logger@projectWasNotCloned'
+        ],
 		ChangedWorkingDir::class => [
 			'Deploy\Support\Logger@changedWorkingDir'
 		],

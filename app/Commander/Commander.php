@@ -25,20 +25,6 @@ class Commander {
     protected $vcs;
 
     /**
-     * Command execution sequence.
-     *
-     * @var string
-     */
-    protected $sequence;
-
-    /**
-     * Project working directory.
-     *
-     * @var string
-     */
-    protected $directory;
-
-    /**
      * Project scripts.
      *
      * @var \im\Primitive\Container\Container

@@ -17,49 +17,26 @@ class BitbucketProject extends Project {
      *
      * @return \im\Primitive\Container\Container
      */
-    protected function branchesFromPayload()
+    protected function branchFromPayload()
     {
         $commits = $this->payload->getCommits();
 
-        $branches = container();
+        if ($commits->isEmpty()) return container();
 
-        if ($commits->isEmpty()) return $branches;
-
-        $commits->each(function($commit) use ($branches)
-        {
-            $branches->push($commit['branch']);
-        });
-
-        return $branches->unique();
+        return $commits->get('0.branch');
     }
 
     /**
-     * Set Project branches pending state.
+     * Set Project pending state from commits.
      *
      * @param \im\Primitive\Container\Container $commits
      * @return \im\Primitive\String\String
      */
-    public function statesFromCommits($commits)
+    public function stateFromCommits($commits)
     {
-        foreach ($commits as $commit)
-        {
+        if ($commits->isEmpty()) return string('merge');
 
-        }
-    }
-
-    public function getState($commit)
-    {
-        switch (true)
-        {
-            case $this->exists:
-                return string('merge');
-            case $this->exists && ! $this->branches->isEmpty():
-                return string('pull');
-            case ! $this->exists:
-                return string('clone');
-            default:
-                throw new RuntimeException('Unknown project state.');
-        }
+        return string('pull');
     }
 
 }
