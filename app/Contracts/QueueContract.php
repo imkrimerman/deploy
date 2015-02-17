@@ -1,24 +1,7 @@
 <?php namespace Deploy\Contracts;
 
-use Deploy\Commander\CommandQueue;
-
 
 interface QueueContract extends Contract {
-
-    /**
-     * Push command to a Queue.
-     *
-     * @param string $command
-     * @return $this
-     */
-    public function push($command);
-
-    /**
-     * Pop first queued command.
-     *
-     * @return string
-     */
-    public function pop();
 
     /**
      * Process (join) all commands.
@@ -26,15 +9,7 @@ interface QueueContract extends Contract {
      * @param string $sequence
      * @return \im\Primitive\String\String
      */
-    public function commands($sequence = '|');
-
-    /**
-     * Prepend command to queue.
-     *
-     * @param string $command
-     * @return $this
-     */
-    public function prepend($command);
+    public function commands($sequence = ';');
 
     /**
      * Alias for push.

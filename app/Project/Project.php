@@ -33,27 +33,6 @@ abstract class Project implements ProjectContract {
     protected $config;
 
     /**
-     * Project branch.
-     *
-     * @var \im\Primitive\Container\Container
-     */
-    protected $branch;
-
-    /**
-     * Project pending state.
-     *
-     * @var \im\Primitive\String\String
-     */
-    protected $state;
-
-    /**
-     * Project exist flag.
-     *
-     * @var bool
-     */
-    protected $exists;
-
-    /**
      * Construct Project from Payload Instance.
      *
      * @param \Deploy\Contracts\PayloadContract $payload
@@ -106,7 +85,7 @@ abstract class Project implements ProjectContract {
      */
     public function getBranch()
     {
-        return $this->branch;
+        return $this->config->get('branch');
     }
 
     /**
@@ -116,7 +95,7 @@ abstract class Project implements ProjectContract {
      */
     public function getState()
     {
-        return $this->state;
+        return $this->config->get('state');
     }
 
     /**
@@ -136,7 +115,7 @@ abstract class Project implements ProjectContract {
      */
     public function exists()
     {
-        return $this->exists;
+        return $this->config->get('exist');
     }
 
     /**

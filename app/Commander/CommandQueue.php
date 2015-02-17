@@ -1,23 +1,9 @@
 <?php namespace Deploy\Commander;
 
 use Deploy\Contracts\QueueContract;
+use im\Primitive\Container\Container;
 
-class CommandQueue implements QueueContract {
-
-    /**
-     * Queue.
-     *
-     * @var \im\Primitive\Container\Container
-     */
-    protected $queue;
-
-    /**
-     * Construct.
-     */
-    public function __construct()
-    {
-        $this->queue = container();
-    }
+class CommandQueue extends Container implements QueueContract {
 
     /**
      * Add command with alias to queue.
@@ -28,46 +14,9 @@ class CommandQueue implements QueueContract {
      */
     public function alias($command, $alias)
     {
-        $this->queue->set($alias, $command);
+        $this->set($alias, $command);
 
         return $this;
-    }
-
-    /**
-     * Pull command from Queue.
-     *
-     * @param mixed $alias
-     * @param null|mixed  $default
-     * @return mixed|null
-     * @throws \im\Primitive\Support\Exceptions\OffsetNotExistsException
-     */
-    public function pull($alias, $default = null)
-    {
-        if ( ! $this->queue->has($alias)) return $default;
-
-        return $this->queue->pull($alias);
-    }
-
-    /**
-     * Push command to a Queue.
-     *
-     * @param string $command
-     * @return $this
-     */
-    public function push($command)
-    {
-        return $this->queue->push($command);
-    }
-
-    /**
-     * Prepend command to queue.
-     *
-     * @param string $command
-     * @return $this
-     */
-    public function prepend($command)
-    {
-        return $this->queue->prepend($command);
     }
 
     /**
@@ -93,25 +42,15 @@ class CommandQueue implements QueueContract {
     }
 
     /**
-     * Pop first queued command.
-     *
-     * @return string
-     */
-    public function pop()
-    {
-        return $this->queue->shift();
-    }
-
-    /**
      * Process (join) all commands.
      *
      * @param string $sequence
      * @return \im\Primitive\String\String
      */
-    public function commands($sequence = '|')
+    public function commands($sequence = ';')
     {
-        $sequence = string($sequence)->surround(' ');
+        $sequence = string($sequence)->append(' ');
 
-        return $this->queue->join($sequence);
+        return $this->join($sequence);
     }
 }

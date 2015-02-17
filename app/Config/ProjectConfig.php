@@ -45,7 +45,7 @@ abstract class ProjectConfig extends Config implements ProjectConfigContract {
             $this->appendFromYaml(string($file)->contents());
         }
 
-        $this->setPath()->setBranch()->setState();
+        $this->setPath()->setExist()->setBranch()->setState();
 
         return $this;
     }
@@ -115,6 +115,25 @@ abstract class ProjectConfig extends Config implements ProjectConfigContract {
         if ($this->has('mirror'))
         {
             $this->set('path', $this->get('mirror'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set project existence.
+     *
+     * @return $this
+     */
+    protected function setExist()
+    {
+        if (is_dir($this->path))
+        {
+            $this->set('exist', true);
+        }
+        else
+        {
+            $this->set('exist', false);
         }
 
         return $this;

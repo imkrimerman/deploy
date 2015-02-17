@@ -57,8 +57,6 @@ class Commander {
      */
     public function handle(ProjectContract $project)
     {
-
-
         $this->execute();
     }
 
@@ -67,7 +65,7 @@ class Commander {
      */
     protected function execute()
     {
-        event(new CommandWasExecuted($command, $output));
+
     }
 
     /**
@@ -82,6 +80,7 @@ class Commander {
 
         return string((is_string($output) ? $output : ''));
     }
+
     /**
      * Get Vcs Instance.
      *
@@ -92,19 +91,6 @@ class Commander {
         return $this->vcs;
     }
 
-
-    /**
-     * Set Vcs Instance.
-     *
-     * @param VcsContract $vcs
-     * @return $this
-     */
-    public function setVcs($vcs)
-    {
-        $this->vcs = $vcs;
-
-        return $this;
-    }
     /**
      * Get Queue Instance.
      *
@@ -113,19 +99,6 @@ class Commander {
     public function getQueue()
     {
         return $this->queue;
-    }
-
-    /**
-     * Set Queue Instance.
-     *
-     * @param \Deploy\Contracts\QueueContract $queue
-     * @return $this
-     */
-    public function setQueue(QueueContract $queue)
-    {
-        $this->queue = $queue;
-
-        return $this;
     }
 
     /**
