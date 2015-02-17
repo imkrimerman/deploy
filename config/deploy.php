@@ -33,6 +33,17 @@ return [
     |
     */
 
-    'storage' => storage_path('deploy')
+    'storage' => storage_path('deploy'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Deploy Fallback Branch
+    |--------------------------------------------------------------------------
+    |
+    | This branch will be used if branch was not detected.
+    |
+    */
+
+    'branch' => 'master'
 
 ];

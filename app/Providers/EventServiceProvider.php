@@ -4,6 +4,7 @@ use Deploy\Events\ChangedWorkingDir;
 use Deploy\Events\CommandWasExecuted;
 use Deploy\Events\PayloadWasReceived;
 use Deploy\Events\ProjectWasCloned;
+use Deploy\Events\ProjectWasConfigured;
 use Deploy\Events\ProjectWasCreated;
 use Deploy\Events\ProjectWasNotCloned;
 use Deploy\Events\ProjectWasPreconfigured;
@@ -32,6 +33,9 @@ class EventServiceProvider extends ServiceProvider {
         ],
         ProjectWasNotCloned::class => [
             'Deploy\Support\Logger@projectWasNotCloned'
+        ],
+        ProjectWasConfigured::class => [
+            'Deploy\Support\Logger@projectConfigured'
         ],
 		ChangedWorkingDir::class => [
 			'Deploy\Support\Logger@changedWorkingDir'

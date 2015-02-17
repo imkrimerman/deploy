@@ -4,6 +4,7 @@ use Deploy\Events\ChangedWorkingDir;
 use Deploy\Events\CommandWasExecuted;
 use Deploy\Events\PayloadWasReceived;
 use Deploy\Events\ProjectWasCloned;
+use Deploy\Events\ProjectWasConfigured;
 use Deploy\Events\ProjectWasCreated;
 use Deploy\Events\ProjectWasNotCloned;
 
@@ -89,6 +90,19 @@ class Logger {
     public function projectWasNotCloned(ProjectWasNotCloned $event)
     {
         $this->error("Project was NOT cloned. Something went wrong!");
+    }
+
+    /**
+     * Log when project was fully configured.
+     *
+     * @param \Deploy\Events\ProjectWasConfigured $event
+     */
+    public function projectConfigured(ProjectWasConfigured $event)
+    {
+        $config = $event->config;
+
+        $this->info("Project {$config->name} was successfully configured.");
+        $this->info("Config: {$config}");
     }
 
     /**

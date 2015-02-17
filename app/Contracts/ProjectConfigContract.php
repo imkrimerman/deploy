@@ -1,8 +1,5 @@
 <?php namespace Deploy\Contracts;
 
-use Deploy\Config\ProjectConfig;
-
-
 interface ProjectConfigContract {
 
     /**

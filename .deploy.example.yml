@@ -1,16 +1,24 @@
 name: Project X
 slug: project-x
 branch: master
-git: git
-sequence: "|"
+
+alias: myOwnDirectory
 mirror: ~/Users/Desktop/Code/project-x
+
+git: git
+sequence: ";"
+
 scripts:
+  before:
+    all:
+      - composer self-update
   after:
     clone:
       - composer install
     update:
       - composer update
       - npm update
+    all:
       - gulp
   schedule:
     weekly: php artisan self-update

@@ -43,7 +43,7 @@ class ProjectClone {
 
         chdir($this->config->get('deploy.storage'));
 
-        shell_exec("git clone {$this->config->get('clone.url')} {$this->config->get('clone.uuid')}");
+        shell_exec($this->createCloneCommand());
 
         chdir($current);
 
@@ -118,4 +118,10 @@ class ProjectClone {
     {
         return $this->cloned;
     }
+
+    protected function createCloneCommand()
+    {
+        return "git clone {$this->config->get('clone.url')} {$this->config->get('clone.uuid')}";
+    }
+
 }

@@ -2,14 +2,11 @@
 
 use Deploy\Contracts\PayloadContract;
 use Deploy\Contracts\ProjectConfigContract;
+use Deploy\Events\ProjectWasConfigured;
 use Deploy\Events\ProjectWasPreconfigured;
-use Guzzle\Http\Client;
-use im\Primitive\String\String;
-use Symfony\Component\Yaml\Yaml;
-use im\Primitive\Container\Container;
 use Deploy\Contracts\ProjectContract;
 
-abstract class ProjectConfig extends Container implements ProjectConfigContract {
+abstract class ProjectConfig extends Config implements ProjectConfigContract {
 
     /**
      * Make Project configuration.
@@ -20,24 +17,17 @@ abstract class ProjectConfig extends Container implements ProjectConfigContract 
     {
         $this->initialize([]);
 
-        $repository = app('config');
+        $this->setMainConfigKeys($project);
 
-        foreach ($this->getConfigKeys() as $key)
-        {
-            $this->set($key, string($repository->get($key)));
-        }
-
-        $this->set('name', $project->getPayload()->getName());
-        $this->set('slug', $project->getPayload()->getSlug());
-        $this->set(
-            'clone.url', $this->getCloneUrl($project->getPayload(), $project->getProvider())
-        );
+        $this->setFromPayload($project->getPayload());
 
         $this->handleStorage();
 
         event(new ProjectWasPreconfigured($this));
 
         $this->update();
+
+        event(new ProjectWasConfigured($this));
     }
 
     /**
@@ -48,71 +38,32 @@ abstract class ProjectConfig extends Container implements ProjectConfigContract 
      */
     public function update()
     {
-        $file = $this->get('clone.storage').DS. $this->get('slug').DS.$this->get('deploy.filename');
+        $file = $this->get('clone.storage').DS.$this->get('deploy.filename');
 
         if (is_file($file) && is_readable($file))
         {
-            $this->appendFromYaml(string($file)->contents())
-                 ->mirrorIfHas();
+            $this->appendFromYaml(string($file)->contents());
         }
+
+        $this->setPath()->setBranch()->setState();
 
         return $this;
     }
 
     /**
-     * Append configuration from yaml.
+     * Set configuration from payload.
      *
-     * @param string $yaml
+     * @param \Deploy\Contracts\PayloadContract $payload
      * @return $this
+     * @throws \im\Primitive\Container\Exceptions\EmptyContainerException
      */
-    public function appendFromYaml($yaml)
+    protected function setFromPayload(PayloadContract $payload)
     {
-        foreach ($this->parseYaml($yaml) as $key => $value)
-        {
-            $this->set($key, $value);
-        }
+        $this->set('name', $payload->getName());
+        $this->set('slug', $payload->getSlug());
+        $this->set('owner', $payload->getOwner());
 
         return $this;
-    }
-
-    /**
-     * Map working dir to mirrored if exists.
-     *
-     * @return $this
-     */
-    protected function mirrorIfHas()
-    {
-        if ($this->has('mirror'))
-        {
-            $this->set('path', $this->get('mirror'));
-        }
-
-        return $this;
-    }
-
-    /**
-     * Parse Yaml file.
-     *
-     * @param string $yaml
-     * @return array
-     */
-    public function parseYaml($yaml)
-    {
-        return Yaml::parse($yaml);
-    }
-
-    /**
-     * Get configuration keys.
-     *
-     * @return array
-     */
-    public function getConfigKeys()
-    {
-        return [
-            'deploy.directory',
-            'deploy.filename',
-            'deploy.storage'
-        ];
     }
 
     /**
@@ -137,6 +88,86 @@ abstract class ProjectConfig extends Container implements ProjectConfigContract 
 
         return $this;
     }
+
+    /**
+     * Set project path on machine.
+     *
+     * @return $this
+     */
+    protected function setPath()
+    {
+        $directory = $this->get('deploy.directory');
+
+        $name = $this->has('alias') ? $this->alias : $this->slug;
+
+        $this->set('path', $directory.DS.$name);
+
+        return $this->mirrorIfHas();
+    }
+
+    /**
+     * Map working dir to mirrored if exists.
+     *
+     * @return $this
+     */
+    protected function mirrorIfHas()
+    {
+        if ($this->has('mirror'))
+        {
+            $this->set('path', $this->get('mirror'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set main configuration options.
+     *
+     * @param \Deploy\Contracts\ProjectContract $project
+     * @return $this
+     */
+    protected function setMainConfigKeys(ProjectContract $project)
+    {
+        $repository = app('config');
+
+        foreach ($this->getConfigKeys() as $key)
+        {
+            $this->set($key, string($repository->get($key)));
+        }
+
+        $this->set('clone.url', $this->getCloneUrl($project->getPayload(), $project->getProvider()));
+
+        return $this;
+    }
+
+    /**
+     * Get configuration keys.
+     *
+     * @return array
+     */
+    public function getConfigKeys()
+    {
+        return [
+            'deploy.directory',
+            'deploy.filename',
+            'deploy.storage',
+            'deploy.branch'
+        ];
+    }
+
+    /**
+     * Set branch.
+     *
+     * @return $this
+     */
+    abstract protected function setBranch();
+
+    /**
+     * Set project pending state.
+     *
+     * @return $this
+     */
+    abstract protected function setState();
 
     /**
      * Make url to clone project.
