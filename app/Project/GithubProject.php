@@ -14,9 +14,9 @@ class GithubProject extends Project {
      *
      * @return \im\Primitive\Container\Container
      */
-    protected function branchesFromPayload()
+    protected function branchFromPayload()
     {
-        // TODO: Implement detectBranches() method.
+        // TODO: Implement branchFromPayload() method.
     }
 
     /**
@@ -25,8 +25,8 @@ class GithubProject extends Project {
      * @param \im\Primitive\Container\Container $branches
      * @return \im\Primitive\String\String
      */
-    public function statesFromCommits($branches)
+    public function stateFromCommits($branches)
     {
-        // TODO: Implement stateFromBranches() method.
+        // TODO: Implement stateFromCommits() method.
     }
 }

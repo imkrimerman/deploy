@@ -13,7 +13,7 @@ class ChangedWorkingDir extends Event {
      *
      * @var string
      */
-    protected $dir;
+    public $dir;
 
     /**
 	 * Create a new event instance.
