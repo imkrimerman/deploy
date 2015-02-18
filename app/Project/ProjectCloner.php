@@ -6,8 +6,7 @@ use Deploy\Events\ProjectWasNotCloned;
 use Deploy\Events\ProjectWasPreconfigured;
 use Illuminate\Filesystem\Filesystem;
 
-
-class ProjectClone {
+class ProjectCloner {
 
     /**
      * Project configuration
@@ -26,13 +25,13 @@ class ProjectClone {
     /**
      * Clone project to temporary storage.
      *
-     * @param \Deploy\Events\ProjectWasPreconfigured $event
+     * @param \Deploy\Contracts\ProjectConfigContract $config
      * @return $this
      * @throws \Deploy\Project\RuntimeException
      */
-    public function process(ProjectWasPreconfigured $event)
+    public function process(ProjectConfigContract $config)
     {
-        $this->config = $event->config;
+        $this->config = $config;
 
         if ( ! $this->config->has('clone.storage'))
         {
@@ -43,7 +42,7 @@ class ProjectClone {
 
         chdir($this->config->get('deploy.storage'));
 
-        shell_exec($this->createCloneCommand());
+        shell_exec($this->createCloneUrl());
 
         chdir($current);
 
@@ -62,7 +61,7 @@ class ProjectClone {
     {
         if ( ! is_null($config))
         {
-            return (new static)->process(new ProjectWasPreconfigured($config));
+            return (new static)->process($config);
         }
 
         return new static;
@@ -119,7 +118,12 @@ class ProjectClone {
         return $this->cloned;
     }
 
-    protected function createCloneCommand()
+    /**
+     * Create clone url.
+     *
+     * @return string
+     */
+    protected function createCloneUrl()
     {
         return "git clone {$this->config->get('clone.url')} {$this->config->get('clone.uuid')}";
     }

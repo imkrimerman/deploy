@@ -7,6 +7,8 @@ use Deploy\Events\ChangedWorkingDir;
 use Deploy\Events\CommandWasExecuted;
 use Deploy\Project\ProjectConfig;
 use im\Primitive\String\String;
+use RuntimeException;
+
 
 class Commander {
 
@@ -57,6 +59,12 @@ class Commander {
      */
     public function handle(ProjectContract $project)
     {
+        $this->project = $project;
+
+        $this->setVcsPath();
+
+        $this->actionFromState();
+
         $this->execute();
     }
 
@@ -65,7 +73,95 @@ class Commander {
      */
     protected function execute()
     {
+        $this->setDirectory($this->project->getConfig('path'));
 
+        $command = $this->queue->commands($this->project->getConfig('sequence'));
+
+        $output = $this->shell($command);
+
+        event(new CommandWasExecuted($command, $output));
+    }
+
+    /**
+     * Set Vcs path if exists.
+     *
+     * @return $this
+     */
+    protected function setVcsPath()
+    {
+        if ($this->project->hasConfig('vcs'))
+        {
+            $this->vcs->setVcsPath(
+                $this->project->getConfig('vcs')
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return \Deploy\Commander\Commander
+     */
+    protected function actionFromState()
+    {
+        $state = $this->project->getConfig('state');
+
+        switch ($state)
+        {
+            case 'clone':
+                return $this->_clone();
+            case 'pull':
+                return $this->_pull();
+            default:
+                throw new RuntimeException('Unknown project pending state: '.$state);
+        }
+    }
+
+    /**
+     * Add clone project command queue.
+     *
+     * @return $this
+     */
+    protected function _clone()
+    {
+        $url = $this->project->getConfig('clone.url');
+
+        $this->queue->push($this->vcs->_clone($url));
+
+        return $this;
+    }
+
+    /**
+     * Add pull project command to queue.
+     *
+     * @return $this
+     */
+    protected function _pull()
+    {
+        $this->queue->push($this->vcs->pull());
+
+        return $this;
+    }
+
+    /**
+     * Set working directory if $directory specified.
+     * Otherwise set to deploy base path.
+     *
+     * @param string|null $directory
+     * @return $this
+     */
+    protected function setDirectory($directory = null)
+    {
+        if ( ! is_null($directory) && is_dir($directory))
+        {
+            chdir(realpath($directory));
+        }
+        else
+        {
+            chdir(realpath(base_path()));
+        }
+
+        return $this;
     }
 
     /**
@@ -106,7 +202,7 @@ class Commander {
      */
     public function selfUpdate()
     {
-        $this->setDirectory()->pull_()->execute();
+        $this->setDirectory()->_pull()->execute();
     }
 
     /**

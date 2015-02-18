@@ -48,7 +48,7 @@ class BitbucketConfig extends ProjectConfig {
      */
     protected function setState()
     {
-        if ( ! is_dir($this->path))
+        if ( ! is_dir($this->get('path')))
         {
             $this->set('state', 'clone');
         }

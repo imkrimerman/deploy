@@ -8,6 +8,7 @@ use Deploy\Events\ProjectWasConfigured;
 use Deploy\Events\ProjectWasCreated;
 use Deploy\Events\ProjectWasNotCloned;
 use Deploy\Events\ProjectWasPreconfigured;
+use Deploy\Project\ProjectCloner;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -26,7 +27,7 @@ class EventServiceProvider extends ServiceProvider {
 			'Deploy\Support\Logger@projectCreated'
 		],
         ProjectWasPreconfigured::class => [
-            'Deploy\Project\ProjectClone@process'
+            ProjectCloner::class
         ],
         ProjectWasCloned::class => [
             'Deploy\Support\Logger@projectWasCloned'

@@ -9,6 +9,11 @@ use Deploy\Contracts\ProjectContract;
 abstract class ProjectConfig extends Config implements ProjectConfigContract {
 
     /**
+     * Project default execution sequence.
+     */
+    const EXECUTION_SEQUENCE = ';';
+
+    /**
      * Make Project configuration.
      *
      * @param \Deploy\Contracts\ProjectContract $project
@@ -45,7 +50,7 @@ abstract class ProjectConfig extends Config implements ProjectConfigContract {
             $this->appendFromYaml(string($file)->contents());
         }
 
-        $this->setPath()->setExist()->setBranch()->setState();
+        $this->setSequence()->setPath()->setExist()->setBranch()->setState();
 
         return $this;
     }
@@ -87,6 +92,21 @@ abstract class ProjectConfig extends Config implements ProjectConfigContract {
         $this->set('clone.storage', $storage.DS.$uuid);
 
         return $this;
+    }
+
+    /**
+     * Set command execution sequence
+     */
+    protected function setSequence()
+    {
+        $sequence = static::EXECUTION_SEQUENCE;
+
+        if ($this->has('sequence'))
+        {
+            $sequence = $this->get('sequence');
+        }
+
+        $this->set('sequence', $sequence);
     }
 
     /**

@@ -79,6 +79,17 @@ abstract class Project implements ProjectContract {
     }
 
     /**
+     * Check if config has $key
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function hasConfig($key)
+    {
+        return $this->config->has($key);
+    }
+
+    /**
      * Return Project branch.
      *
      * @return \im\Primitive\Container\Container

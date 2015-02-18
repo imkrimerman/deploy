@@ -5,7 +5,7 @@ branch: master
 alias: myOwnDirectory
 mirror: ~/Users/Desktop/Code/project-x
 
-git: git
+vcs: git
 sequence: ";"
 
 scripts:
