@@ -47,10 +47,14 @@ class CommandQueue extends Container implements QueueContract {
      * @param string $sequence
      * @return \im\Primitive\String\String
      */
-    public function commands($sequence = ';')
+    public function release($sequence = ';')
     {
         $sequence = string($sequence)->append(' ');
 
-        return $this->join($sequence);
+        $commands = $this->join($sequence);
+
+        $this->reset();
+
+        return $commands;
     }
 }

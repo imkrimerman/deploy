@@ -9,7 +9,7 @@ interface QueueContract extends Contract {
      * @param string $sequence
      * @return \im\Primitive\String\String
      */
-    public function commands($sequence = ';');
+    public function release($sequence = ';');
 
     /**
      * Alias for push.

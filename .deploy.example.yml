@@ -10,15 +10,11 @@ sequence: ";"
 
 scripts:
   before:
-    all:
+    clone:
       - composer self-update
   after:
     clone:
       - composer install
-    update:
+    pull:
       - composer update
       - npm update
-    all:
-      - gulp
-  schedule:
-    weekly: php artisan self-update

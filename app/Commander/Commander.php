@@ -6,6 +6,7 @@ use Deploy\Contracts\VcsContract;
 use Deploy\Events\ChangedWorkingDir;
 use Deploy\Events\CommandWasExecuted;
 use Deploy\Project\ProjectConfig;
+use im\Primitive\Container\Container;
 use im\Primitive\String\String;
 use RuntimeException;
 
@@ -63,23 +64,11 @@ class Commander {
 
         $this->setVcsPath();
 
+        $this->setScripts();
+
         $this->actionFromState();
 
         $this->execute();
-    }
-
-    /**
-     * Execute prepared command queue.
-     */
-    protected function execute()
-    {
-        $this->setDirectory($this->project->getConfig('path'));
-
-        $command = $this->queue->commands($this->project->getConfig('sequence'));
-
-        $output = $this->shell($command);
-
-        event(new CommandWasExecuted($command, $output));
     }
 
     /**
@@ -91,15 +80,54 @@ class Commander {
     {
         if ($this->project->hasConfig('vcs'))
         {
-            $this->vcs->setVcsPath(
-                $this->project->getConfig('vcs')
-            );
+            $this->vcs->setVcsPath($this->project->getConfig('vcs'));
         }
 
         return $this;
     }
 
     /**
+     * Set scripts for project.
+     *
+     * @return $this
+     */
+    protected function setScripts()
+    {
+        if ( ! $this->project->hasConfig('scripts')) $this->scripts = container();
+
+        $scripts = container($this->project->getConfig('scripts'));
+
+        $state = $this->project->getConfig('state');
+
+        $this->prepareScripts($scripts, $state, 'before');
+
+        $this->prepareScripts($scripts, $state, 'after');
+
+        return $this;
+    }
+
+    /**
+     * Prepare scripts.
+     *
+     * @param \im\Primitive\Container\Container $scripts
+     * @param $state
+     * @param $sequence
+     */
+    protected function prepareScripts(Container $scripts, $state, $sequence)
+    {
+        $commandSequence = $this->project->getConfig('sequence');
+
+        if ($scripts->has("{$sequence}.{$state}"))
+        {
+            $commands = container($scripts->get("{$sequence}.{$state}"))->join($commandSequence);
+
+            $this->scripts->set($sequence, $commands);
+        }
+    }
+
+    /**
+     * Add action to queue from project pending state.
+     *
      * @return \Deploy\Commander\Commander
      */
     protected function actionFromState()
@@ -115,6 +143,56 @@ class Commander {
             default:
                 throw new RuntimeException('Unknown project pending state: '.$state);
         }
+    }
+
+    /**
+     * Execute prepared command queue.
+     *
+     * @return $this
+     */
+    protected function execute()
+    {
+        $this->setDirectory($this->project->getConfig('path'));
+
+        $this->fireBeforeScripts();
+
+        $command = $this->queue->release($this->project->getConfig('sequence'));
+
+        $this->fireAfterScripts();
+
+        $output = $this->shell($command);
+
+        event(new CommandWasExecuted($command, $output));
+
+        return $this;
+    }
+
+    /**
+     * Fire before scripts.
+     *
+     * @return $this
+     */
+    protected function fireBeforeScripts()
+    {
+        if ($this->scripts->isEmpty() || ! $this->scripts->has('before')) return $this;
+
+        $this->queue->before($this->scripts->before);
+
+        return $this;
+    }
+
+    /**
+     * Fire after scripts.
+     *
+     * @return $this
+     */
+    protected function fireAfterScripts()
+    {
+        if ($this->scripts->isEmpty() || ! $this->scripts->has('after')) return $this;
+
+        $this->queue->after($this->scripts->after);
+
+        return $this;
     }
 
     /**
@@ -145,7 +223,7 @@ class Commander {
 
     /**
      * Set working directory if $directory specified.
-     * Otherwise set to deploy base path.
+     * Otherwise set to deployer base path.
      *
      * @param string|null $directory
      * @return $this

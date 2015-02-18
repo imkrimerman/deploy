@@ -14,6 +14,14 @@ interface ProjectContract extends Contract {
     public function __construct(PayloadContract $payload, ProjectConfigFactory $factory);
 
     /**
+     * Check if config has specified $key.
+     *
+     * @param mixed $key
+     * @return mixed
+     */
+    public function hasConfig($key);
+
+    /**
      * Return Project configuration instance.
      * If $key specified [get] method will retrieve
      * configuration by $key.
