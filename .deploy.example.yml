@@ -11,10 +11,10 @@ sequence: ";"
 scripts:
   before:
     clone:
-      - composer self-update
+      - "composer self-update"
   after:
     clone:
-      - composer install
+      - "composer install"
     pull:
-      - composer update
-      - npm update
+      - "composer update"
+      - "npm update"
