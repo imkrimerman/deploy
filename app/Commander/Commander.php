@@ -93,7 +93,12 @@ class Commander {
      */
     protected function setScripts()
     {
-        if ( ! $this->project->hasConfig('scripts')) $this->scripts = container();
+        if ( ! $this->project->hasConfig('scripts'))
+        {
+            $this->scripts = container();
+
+            return $this;
+        }
 
         $scripts = container($this->project->getConfig('scripts'));
 
@@ -152,8 +157,6 @@ class Commander {
      */
     protected function execute()
     {
-        $this->setDirectory($this->project->getConfig('path'));
-
         $this->fireBeforeScripts();
 
         $command = $this->queue->release($this->project->getConfig('sequence'));
@@ -174,11 +177,7 @@ class Commander {
      */
     protected function fireBeforeScripts()
     {
-        if ($this->scripts->isEmpty() || ! $this->scripts->has('before')) return $this;
-
-        $this->queue->before($this->scripts->before);
-
-        return $this;
+        return $this->fire('before');
     }
 
     /**
@@ -188,9 +187,20 @@ class Commander {
      */
     protected function fireAfterScripts()
     {
-        if ($this->scripts->isEmpty() || ! $this->scripts->has('after')) return $this;
+        return $this->fire('after');
+    }
 
-        $this->queue->after($this->scripts->after);
+    /**
+     * Fire scripts by $sequence.
+     *
+     * @param string $sequence
+     * @return $this
+     */
+    protected function fire($sequence)
+    {
+        if ($this->scripts->isEmpty() || ! $this->scripts->has($sequence)) return $this;
+
+        $this->queue->{$sequence}($this->scripts->{$sequence});
 
         return $this;
     }
@@ -202,6 +212,8 @@ class Commander {
      */
     protected function _clone()
     {
+        $this->setDirectory($this->project->getConfig('deploy.directory'));
+
         $url = $this->project->getConfig('clone.url');
 
         $this->queue->push($this->vcs->_clone($url));
@@ -216,6 +228,9 @@ class Commander {
      */
     protected function _pull()
     {
+        $this->setDirectory($this->project->getConfig('path'));
+
+        $this->queue->push($this->vcs->reset());
         $this->queue->push($this->vcs->pull());
 
         return $this;
@@ -280,7 +295,14 @@ class Commander {
      */
     public function selfUpdate()
     {
-        $this->setDirectory()->_pull()->execute();
+        $this->setDirectory();
+
+        $this->queue->push("composer self-update")
+                    ->push($this->vcs->reset())
+                    ->push($this->vcs->pull())
+                    ->push("composer update");
+
+        $this->execute();
     }
 
     /**

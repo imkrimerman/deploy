@@ -125,7 +125,7 @@ class ProjectCloner {
      */
     protected function createCloneUrl()
     {
-        return "git clone {$this->config->get('clone.url')} {$this->config->get('clone.uuid')}";
+        return "git clone --depth=1 {$this->config->get('clone.url')} {$this->config->get('clone.uuid')}";
     }
 
 }
