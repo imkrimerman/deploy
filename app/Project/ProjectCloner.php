@@ -76,11 +76,11 @@ class ProjectCloner {
     {
         if ($this->cloned)
         {
-            event(new ProjectWasCloned);
+            event(new ProjectWasCloned($this->config));
         }
         else
         {
-            event(new ProjectWasNotCloned);
+            event(new ProjectWasNotCloned($this->config));
         }
 
         return $this;

@@ -1,21 +1,27 @@
 <?php namespace Deploy\Events;
 
-use Deploy\Events\Event;
-
+use Deploy\Contracts\ProjectConfigContract;
 use Illuminate\Queue\SerializesModels;
 
 class ProjectWasNotCloned extends Event {
 
 	use SerializesModels;
 
-	/**
-	 * Create a new event instance.
-	 *
-	 * @return void
-	 */
-	public function __construct()
-	{
-		//
-	}
+    /**
+     * Project config.
+     *
+     * @var \Deploy\Contracts\ProjectConfigContract
+     */
+    public $config;
+
+    /**
+     * Create a new event instance.
+     *
+     * @param \Deploy\Contracts\ProjectConfigContract $config
+     */
+    public function __construct(ProjectConfigContract $config)
+    {
+        $this->config = $config;
+    }
 
 }

@@ -96,6 +96,8 @@ abstract class ProjectConfig extends Config implements ProjectConfigContract {
 
     /**
      * Set command execution sequence
+     *
+     * @return $this
      */
     protected function setSequence()
     {
@@ -107,6 +109,8 @@ abstract class ProjectConfig extends Config implements ProjectConfigContract {
         }
 
         $this->set('sequence', $sequence);
+
+        return $this;
     }
 
     /**

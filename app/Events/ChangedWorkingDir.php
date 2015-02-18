@@ -8,7 +8,14 @@ class ChangedWorkingDir extends Event {
 
 	use SerializesModels;
 
-	/**
+    /**
+     * Working directory.
+     *
+     * @var string
+     */
+    protected $dir;
+
+    /**
 	 * Create a new event instance.
 	 *
 	 * @param $dir

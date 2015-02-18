@@ -1,7 +1,5 @@
 <?php namespace Deploy\Events;
 
-use Deploy\Events\Event;
-
 use Illuminate\Queue\SerializesModels;
 use im\Primitive\String\String;
 

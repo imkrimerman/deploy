@@ -8,6 +8,8 @@ class ProjectWasCreated extends Event {
 	use SerializesModels;
 
 	/**
+     * Project.
+     *
 	 * @var \Deploy\Contracts\ProjectContract
 	 */
 	public $project;
