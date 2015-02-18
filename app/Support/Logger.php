@@ -7,22 +7,33 @@ use Deploy\Events\ProjectWasCloned;
 use Deploy\Events\ProjectWasConfigured;
 use Deploy\Events\ProjectWasCreated;
 use Deploy\Events\ProjectWasNotCloned;
+use Illuminate\Log\Writer;
+use Monolog\Logger as Monolog;
 
 class Logger {
 
     /**
-     * Logger.
+     * File Logger.
      *
      * @var \Illuminate\Log\Writer
      */
     protected $log;
 
     /**
+     * Static logger.
+     *
+     * @var \Deploy\Support\StaticLogger
+     */
+    protected $staticLogger;
+
+    /**
      * Construct.
      */
     public function __construct()
     {
-        $this->log = app('log');
+        $this->staticLogger = StaticLogger::instance();
+
+        $this->configureFileLogger();
     }
 
     /**
@@ -62,17 +73,6 @@ class Logger {
     }
 
     /**
-     * Log when command was executed.
-     *
-     * @param \Deploy\Events\CommandWasExecuted $event
-     */
-    public function commandExecuted(CommandWasExecuted $event)
-    {
-        $this->info("Executed command: {$event->command}");
-        $this->info("Shell output: {$event->output}");
-    }
-
-    /**
      * Log when project was successfully cloned.
      *
      * @param \Deploy\Events\ProjectWasCloned $event
@@ -103,6 +103,17 @@ class Logger {
 
         $this->info("Project {$config->name} was successfully configured.");
         $this->info("Config: {$config}");
+    }
+
+    /**
+     * Log when command was executed.
+     *
+     * @param \Deploy\Events\CommandWasExecuted $event
+     */
+    public function commandExecuted(CommandWasExecuted $event)
+    {
+        $this->info("Executed command: {$event->command}");
+        $this->info("Shell output: {$event->output}");
     }
 
     /**
@@ -137,6 +148,29 @@ class Logger {
      */
     public function write($level, $message, array $context = [])
     {
-        return $this->log->write($level, 'Deploy -> '.$message, $context);
+        $message = 'Deploy -> '.$message;
+
+        $this->staticLogger->write($message);
+
+        return $this->log->write($level, $message, $context);
     }
+
+    /**
+     * Configure File Logger.
+     *
+     * @return $this
+     */
+    protected function configureFileLogger()
+    {
+        $logFile = app('config')['deploy.log'];
+
+        $this->log = new Writer(new Monolog(app()->environment()));
+
+        if ( ! is_file($logFile)) file_put_contents($logFile, '');
+
+        $this->log->useFiles($logFile);
+
+        return $this;
+    }
+
 }

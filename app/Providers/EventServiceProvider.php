@@ -9,6 +9,7 @@ use Deploy\Events\ProjectWasCreated;
 use Deploy\Events\ProjectWasNotCloned;
 use Deploy\Events\ProjectWasPreconfigured;
 use Deploy\Handlers\Events\ClonePreconfiguredProject;
+use Deploy\Handlers\Events\SendDeploymentResult;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -42,7 +43,8 @@ class EventServiceProvider extends ServiceProvider {
 			'Deploy\Support\Logger@changedWorkingDir'
 		],
 		CommandWasExecuted::class => [
-			'Deploy\Support\Logger@commandExecuted'
+			'Deploy\Support\Logger@commandExecuted',
+            SendDeploymentResult::class
 		]
 	];
 

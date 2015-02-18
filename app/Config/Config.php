@@ -1,6 +1,7 @@
 <?php namespace Deploy\Config;
 
 use im\Primitive\Container\Container;
+use Symfony\Component\Yaml\Yaml;
 
 class Config extends Container {
 

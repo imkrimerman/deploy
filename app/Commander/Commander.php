@@ -51,6 +51,7 @@ class Commander {
     {
         $this->queue = $queue;
         $this->vcs = $vcs;
+        $this->scripts = container();
     }
 
     /**
@@ -95,8 +96,6 @@ class Commander {
     {
         if ( ! $this->project->hasConfig('scripts'))
         {
-            $this->scripts = container();
-
             return $this;
         }
 
@@ -124,7 +123,7 @@ class Commander {
 
         if ($scripts->has("{$sequence}.{$state}"))
         {
-            $commands = container($scripts->get("{$sequence}.{$state}"))->join($commandSequence);
+            $commands = container($scripts->get("{$sequence}.{$state}"))->join($commandSequence)->value();
 
             $this->scripts->set($sequence, $commands);
         }
@@ -157,15 +156,27 @@ class Commander {
      */
     protected function execute()
     {
-        $this->fireBeforeScripts();
+        $this->fireScripts();
 
         $command = $this->queue->release($this->project->getConfig('sequence'));
-
-        $this->fireAfterScripts();
 
         $output = $this->shell($command);
 
         event(new CommandWasExecuted($command, $output));
+
+        return $this;
+    }
+
+    /**
+     * Fire all scripts.
+     *
+     * @return $this
+     */
+    protected function fireScripts()
+    {
+        $this->fireBeforeScripts();
+
+        $this->fireAfterScripts();
 
         return $this;
     }

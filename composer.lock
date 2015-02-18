@@ -360,16 +360,16 @@
         },
         {
             "name": "im/primitive",
-            "version": "v2.0.6",
+            "version": "v2.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imkrimerman/primitive.git",
-                "reference": "d5dcef8c7a34399a54513928746220a0b79a9499"
+                "reference": "fb2fd036b25ed246a5efccd63d5d76600d9e12c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imkrimerman/primitive/zipball/d5dcef8c7a34399a54513928746220a0b79a9499",
-                "reference": "d5dcef8c7a34399a54513928746220a0b79a9499",
+                "url": "https://api.github.com/repos/imkrimerman/primitive/zipball/fb2fd036b25ed246a5efccd63d5d76600d9e12c7",
+                "reference": "fb2fd036b25ed246a5efccd63d5d76600d9e12c7",
                 "shasum": ""
             },
             "require": {
@@ -422,7 +422,7 @@
                 "string",
                 "type"
             ],
-            "time": "2015-02-16 09:40:58"
+            "time": "2015-02-18 13:58:34"
         },
         {
             "name": "ircmaxell/password-compat",

@@ -44,6 +44,30 @@ return [
     |
     */
 
-    'branch' => 'master'
+    'branch' => 'master',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Deploy Mail Notification.
+    |--------------------------------------------------------------------------
+    |
+    | After each deployment it will send result to this emails.
+    |
+    */
+
+    'notify' => [
+        'i.m.krimerman@gmail.com'
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Deploy Log File Path
+    |--------------------------------------------------------------------------
+    |
+    | Path to log file.
+    |
+    */
+
+    'log' => storage_path('deploy/deploy.log'),
 
 ];
