@@ -65,7 +65,6 @@ class SendDeploymentResult {
         $this->mail->send($log(), [], function(Message $message)
         {
             $message->to($this->notify)->subject('Deployment finished');
-
         });
     }
 

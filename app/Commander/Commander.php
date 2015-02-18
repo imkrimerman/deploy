@@ -156,7 +156,7 @@ class Commander {
      */
     protected function execute()
     {
-        $this->fireScripts();
+        $this->putScripts();
 
         $command = $this->queue->release($this->project->getConfig('sequence'));
 
@@ -172,33 +172,13 @@ class Commander {
      *
      * @return $this
      */
-    protected function fireScripts()
+    protected function putScripts()
     {
-        $this->fireBeforeScripts();
+        $this->putScript('before');
 
-        $this->fireAfterScripts();
+        $this->putScript('after');
 
         return $this;
-    }
-
-    /**
-     * Fire before scripts.
-     *
-     * @return $this
-     */
-    protected function fireBeforeScripts()
-    {
-        return $this->fire('before');
-    }
-
-    /**
-     * Fire after scripts.
-     *
-     * @return $this
-     */
-    protected function fireAfterScripts()
-    {
-        return $this->fire('after');
     }
 
     /**
@@ -207,7 +187,7 @@ class Commander {
      * @param string $sequence
      * @return $this
      */
-    protected function fire($sequence)
+    protected function putScript($sequence)
     {
         if ($this->scripts->isEmpty() || ! $this->scripts->has($sequence)) return $this;
 
