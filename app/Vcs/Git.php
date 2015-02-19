@@ -89,11 +89,12 @@ class Git implements VcsContract {
      * Clone Project.
      *
      * @param string $url
+     * @param $branch
      * @return string
      */
-    public function _clone($url)
+    public function _clone($url, $branch)
     {
-        return $this->command("clone {$url}");
+        return $this->command("clone -b {$branch} {$url}");
     }
 
     /**

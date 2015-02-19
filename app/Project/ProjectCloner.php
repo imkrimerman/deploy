@@ -46,7 +46,7 @@ class ProjectCloner {
 
         chdir($current);
 
-        $this->checkIfCloned(new Filesystem)->fireEvents();
+        $this->checkIfCloned()->fireEvents();
 
         return $this;
     }
@@ -89,21 +89,13 @@ class ProjectCloner {
     /**
      * Set cloned state.
      *
-     * @param \Illuminate\Filesystem\Filesystem $filesystem
      * @return $this
      */
-    protected function checkIfCloned(Filesystem $filesystem)
+    protected function checkIfCloned()
     {
         $dir = $this->config->get('clone.storage');
 
-        if ($filesystem->isDirectory($dir))
-        {
-            $this->cloned = true;
-        }
-        else
-        {
-            $this->cloned = false;
-        }
+        $this->cloned = is_dir($dir) ? true : false;
 
         return $this;
     }
@@ -125,7 +117,11 @@ class ProjectCloner {
      */
     protected function createCloneUrl()
     {
-        return "git clone --depth=1 {$this->config->get('clone.url')} {$this->config->get('clone.uuid')}";
+        $branch = $this->config->get('deploy.branch');
+        $url = $this->config->get('clone.url');
+        $directory = $this->config->get('clone.uuid');
+
+        return "git clone --depth=1 -b {$branch} {$url} {$directory}";
     }
 
 }

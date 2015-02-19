@@ -7,7 +7,7 @@ return [
     | Deploy Directory
     |--------------------------------------------------------------------------
     |
-    | Specify directory where your projects are.
+    | Specify directory where to handle projects.
     |
     */
 
@@ -29,7 +29,8 @@ return [
     | Deploy Temporary Storage
     |--------------------------------------------------------------------------
     |
-    | Specify what will be the deployment temporary storage.
+    | Path to deployment temporary storage. Storage is used to keep temporary
+    | cloned project.
     |
     */
 
@@ -37,9 +38,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Deploy Fallback Branch
+    | Deploy Branch
     |--------------------------------------------------------------------------
     |
+    | Deploy branch is used for retrieving deployment configuration file.
     | This branch will be used if branch was not detected.
     |
     */
@@ -51,7 +53,7 @@ return [
     | Deploy Mail Notification.
     |--------------------------------------------------------------------------
     |
-    | After each deployment it will send result to this emails.
+    | After each deployment we will send result to this emails.
     |
     */
 
@@ -64,7 +66,7 @@ return [
     | Deploy Log File Path
     |--------------------------------------------------------------------------
     |
-    | Path to log file.
+    | Path to log file. You can specify where deploy log will be placed.
     |
     */
 

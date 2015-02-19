@@ -65,7 +65,34 @@ interface VcsContract extends Contract {
     /**
      * Clone Project.
      *
+     * @param $url
+     * @param $branch
      * @return string
      */
-    public function _clone($url);
+    public function _clone($url, $branch);
+
+    /**
+     * Change branch.
+     *
+     * @param string $branch
+     * @return string
+     */
+    public function checkout($branch);
+
+    /**
+     * Add File.
+     *
+     * @param string $file filename
+     * @return string
+     */
+    public function add($file);
+
+    /**
+     * Commit Command.
+     *
+     * @param string $message
+     * @param string $options
+     * @return string
+     */
+    public function commit($message, $options = '');
 }

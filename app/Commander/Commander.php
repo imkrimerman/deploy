@@ -10,7 +10,6 @@ use im\Primitive\Container\Container;
 use im\Primitive\String\String;
 use RuntimeException;
 
-
 class Commander {
 
     /**
@@ -206,8 +205,9 @@ class Commander {
         $this->setDirectory($this->project->getConfig('deploy.directory'));
 
         $url = $this->project->getConfig('clone.url');
+        $branch = $this->project->getConfig('branch');
 
-        $this->queue->push($this->vcs->_clone($url));
+        $this->queue->push($this->vcs->_clone($url, $branch));
 
         return $this;
     }
